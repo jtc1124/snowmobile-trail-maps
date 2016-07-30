@@ -1,15 +1,19 @@
 package com.jcoapps.snowmobile_trail_maps.schema;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.jcoapps.snowmobile_trail_maps.types.ConditionTypes;
+import com.jcoapps.snowmobile_trail_maps.types.MaintenanceTypes;
 
 import java.util.HashMap;
 
 /**
  * Created by jcolon on 7/30/2016.
  */
-public class snowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
+public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "snowmobile-trail-maps";
     private static final int DATABASE_VERSION = 1;
@@ -19,7 +23,7 @@ public class snowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATED_AT = "created_at"; // timestamp
     private static final String UPDATED_AT = "updated_at"; // timestamp
 
-    // Users table
+    // UsersDB table
     // Stores user login information
     private static final String USERS_TABLE = "users";
     private static final String USER_EMAIL = "email"; // string
@@ -41,7 +45,7 @@ public class snowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
     private static final String CONDITION_TYPES_TABLE = "condition-types";
     private static final String CONDITION_TYPE_NAME = "name"; // string
 
-    // Sleds table
+    // SledsDB table
     // Stores information about snowmobiles
     private static final String SLEDS_TABLE = "sleds";
     private static final String SLED_NAME = "name"; // string
@@ -60,13 +64,13 @@ public class snowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
     private static final String MAINTENANCE_TYPES_TABLE = "maintenance-types";
     private static final String MAINTENANCE_TYPE_NAME = "name"; // string
 
-    // Friends table
+    // FriendsDB table
     // Stores users who are friends of the user
     private static final String FRIENDS_TABLE = "friends";
     private static final String FRIEND_USER_NAME = "name"; // string
     private static final String FRIEND_FINDER_ACTIVE = "active"; // boolean
 
-    public snowmobileTrailDatabaseHelper(Context context) {
+    public SnowmobileTrailDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
 
@@ -92,12 +96,69 @@ public class snowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.clear();
 
-        // TODO: finish DB creation
+        columns.put(CONDITION_TYPE_NAME, "TEXT NOT NULL");
+        createTable(db, CONDITION_TYPES_TABLE, columns);
+
+        columns.clear();
+
+        columns.put(SLED_NAME, "TEXT NOT NULL");
+        columns.put(SLED_MILEAGE, "DOUBLE");
+        columns.put(SLED_NOTES, "TEXT");
+        columns.put(SLED_MAINTENANCE_LOG_ID, "INT");
+        createTable(db, SLEDS_TABLE, columns);
+
+        columns.clear();
+
+        columns.put(MAINTENANCE_LOG_TYPE, "TEXT NOT NULL");
+        columns.put(MAINTENANCE_LOG_NOTES, "TEXT");
+        createTable(db, MAINTENANCE_LOGS_TABLE, columns);
+
+        columns.clear();
+
+        columns.put(MAINTENANCE_TYPE_NAME, "TEXT NOT NULL");
+        createTable(db, MAINTENANCE_TYPES_TABLE, columns);
+
+        columns.clear();
+
+        columns.put(FRIEND_USER_NAME, "TEXT NOT NULL");
+        columns.put(FRIEND_FINDER_ACTIVE, "BOOLEAN NOT NULL");
+        createTable(db, FRIENDS_TABLE, columns);
+
+        columns.clear();
+
+        // Insert predefined types into type tables
+        insertConditionTypes(db);
+        insertMaintenanceTypes(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //TODO: For upgrade, drop tables and recreate database
+        onCreate(db);
+    }
 
+    private void insertConditionTypes(SQLiteDatabase db) {
+        ContentValues cv = new ContentValues();
+        cv.put(CONDITION_TYPE_NAME, ConditionTypes.GRASSY);
+        db.insert(CONDITION_TYPES_TABLE, CONDITION_TYPE_NAME, cv);
+
+        cv.put(CONDITION_TYPE_NAME, ConditionTypes.ICE);
+        db.insert(CONDITION_TYPES_TABLE, CONDITION_TYPE_NAME, cv);
+
+        cv.put(CONDITION_TYPE_NAME, ConditionTypes.ROUGH);
+        db.insert(CONDITION_TYPES_TABLE, CONDITION_TYPE_NAME, cv);
+
+        cv.put(CONDITION_TYPE_NAME, ConditionTypes.SMOOTH);
+        db.insert(CONDITION_TYPES_TABLE, CONDITION_TYPE_NAME, cv);
+    }
+
+    private void insertMaintenanceTypes(SQLiteDatabase db) {
+        ContentValues cv = new ContentValues();
+        cv.put(MAINTENANCE_TYPE_NAME, MaintenanceTypes.OIL_CHANGE);
+        db.insert(MAINTENANCE_TYPES_TABLE, MAINTENANCE_TYPE_NAME, cv);
+
+        cv.put(MAINTENANCE_TYPE_NAME, MaintenanceTypes.PRE_SEASON_CHECKUP);
+        db.insert(MAINTENANCE_TYPES_TABLE, MAINTENANCE_TYPE_NAME, cv);
     }
 
     private void createTable(SQLiteDatabase db, String tableName, HashMap<String, String> columns) {
@@ -105,7 +166,7 @@ public class snowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
         String createStatement = "CREATE TABLE " + tableName + " ";
         // Add ID timestamp columns
         createStatement += "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                          CREATED_AT + " TEXT NOT NULL, " + UPDATED_AT + " TEXT NOT NULL, ";
+                CREATED_AT + " TEXT NOT NULL, " + UPDATED_AT + " TEXT NOT NULL, ";
 
         // Add the rest of the colums
         for (HashMap.Entry<String, String> column : columns.entrySet()) {
