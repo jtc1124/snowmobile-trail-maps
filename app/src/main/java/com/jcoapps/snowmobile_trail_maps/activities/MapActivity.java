@@ -13,7 +13,6 @@ import com.esri.android.map.event.OnStatusChangedListener;
 import com.esri.core.geometry.Envelope;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.LinearUnit;
-import com.esri.core.geometry.MultiPath;
 import com.esri.core.geometry.MultiPoint;
 import com.esri.core.geometry.Point;
 import com.esri.core.geometry.Polyline;
@@ -24,18 +23,18 @@ import com.esri.core.symbol.SimpleLineSymbol;
 import com.esri.core.tasks.geocode.Locator;
 import com.jcoapps.snowmobile_trail_maps.R;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MapActivity extends AppCompatActivity {
 
     private MapView mapView = null;
     private LocationDisplayManager locationDisplayManager;
     private Locator locator;
     private SpatialReference mapSr = null;
-    private final static double ZOOM_BY = 20;
+    private final static double ZOOM_BY = 1;
     private MultiPoint mapPoints;
     private GraphicsLayer graphicsLayer;
+    private Polyline multipath;
+    private Graphic path;
+    private SimpleLineSymbol LINE_SYMBOL = new SimpleLineSymbol(Color.GREEN, 3, SimpleLineSymbol.STYLE.DASH);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +68,15 @@ public class MapActivity extends AppCompatActivity {
                     // symbol. This will  disable as soon as you interact with the map.
                     locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
 
-                    // TODO: when location changes, draw line between current and previous point
                     Point currentCoord = getAsPoint(loc);
                     mapPoints.add(currentCoord);
 
-                    drawPolylineOrPolygon(mapPoints);
+                    // Only draw when there are 2 points available
+                    if (mapPoints.getPointCount() == 2) {
+                        drawPolylineOrPolygon(mapPoints);
+                        // Once line is drawn, remove first point so we only keep track of 2 points at a time
+                        mapPoints.removePoint(0);
+                    }
                 }
 
                 @Override
@@ -91,26 +94,28 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void drawPolylineOrPolygon(MultiPoint points) {
-        Graphic graphic;
-        Polyline multipath = new Polyline();
-        SimpleLineSymbol lineSymbol = new SimpleLineSymbol(Color.GREEN, 3, SimpleLineSymbol.STYLE.DASH);
-
         // Create and add graphics layer if it doesn't already exist
         if (graphicsLayer == null) {
             graphicsLayer = new GraphicsLayer();
-
+            mapView.addLayer(graphicsLayer);
+        }
+        if (multipath == null) {
+            multipath = new Polyline();
+            multipath.startPath(points.getPoint(0).getX(), points.getPoint(0).getY());
+        }
+        if (path != null) {
+            graphicsLayer.removeGraphic(path.getUid());
         }
 
         if (points.getPointCount() > 1) {
-            multipath.startPath(points.getPoint(0).getX(), points.getPoint(0).getY());
-            for (int i = 1; i < points.getPointCount(); i++) {
-                double x = points.getPoint(i).getX();
-                double y = points.getPoint(i).getY();
-                multipath.lineTo(points.getPoint(i).getX(), points.getPoint(i).getY());
-            }
-            graphic = new Graphic(multipath, lineSymbol);
-            graphicsLayer.addGraphic(graphic);
-            mapView.addLayer(graphicsLayer);
+
+            multipath.lineTo(points.getPoint(1).getX(), points.getPoint(1).getY());
+
+            path = new Graphic(multipath, LINE_SYMBOL);
+            graphicsLayer.addGraphic(path);
+
+            //Remove old point in the first place to save memory
+            multipath.removePoint(0);
         }
     }
 
