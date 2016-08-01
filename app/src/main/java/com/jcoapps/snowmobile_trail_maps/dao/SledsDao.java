@@ -122,6 +122,8 @@ public class SledsDao {
         MaintenanceLogsDB maintenanceLog = sled.getMaintenanceLog();
         if (maintenanceLog != null) {
             cv.put(dbHelper.SLED_MAINTENANCE_LOG_ID, maintenanceLog.getId());
+            MaintenanceLogsDao logsDao = new MaintenanceLogsDao(dbHelper);
+            logsDao.saveOrUpdateMaintenanceLog(maintenanceLog);
         }
 
         // If the SledDB object has an ID, it exists in the DB. Therefore, update.

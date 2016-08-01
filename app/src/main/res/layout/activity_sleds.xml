@@ -7,15 +7,6 @@
         android:layout_height="fill_parent"
         android:orientation="vertical" >
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="20dip"
-            android:text="Condition Types"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
         <TableLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -23,45 +14,37 @@
             android:stretchColumns="*" >
 
             <TableRow>
-                <TextView
-                    android:id="@+id/conditionTypes"
+                <EditText
+                    android:id="@+id/sledNameField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center" />
+                    android:text="Name"
+                     />
             </TableRow>
-        </TableLayout>
-
-        <TableLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dip"
-            android:stretchColumns="*" >
-
+            <TableRow>
+                <EditText
+                    android:id="@+id/sledMileageField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="Mileage"
+                    />
+            </TableRow>
+            <TableRow>
+                <EditText
+                    android:id="@+id/sledNotesField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notes"
+                    />
+            </TableRow>
             <TableRow>
                 <Button
-                    android:id="@+id/mapButton"
+                    android:id="@+id/addSledButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="viewMap"
-                    android:text="View Map" />
-            </TableRow>
-
-            <TableRow>
-                <Button
-                    android:id="@+id/dbButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="viewDB"
-                    android:text="View DB" />
-            </TableRow>
-
-            <TableRow>
-                <Button
-                    android:id="@+id/sledsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="sleds"
-                    android:text="Sleds" />
+                    android:onClick="addSled"
+                    android:text="Add Sled" />
             </TableRow>
         </TableLayout>
 

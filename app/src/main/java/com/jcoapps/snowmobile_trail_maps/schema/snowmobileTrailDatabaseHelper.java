@@ -69,7 +69,7 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
     public static final String MAINTENANCE_ENTRIES_TABLE = "maintenance_entries";
     public static final String MAINTENANCE_ENTRY_NOTES = "notes"; // string
     public static final String MAINTENANCE_ENTRY_TYPE_ID = "maintenance_type_id"; // int
-    public static final String MAINTENANCE_LOG_ID = "maintenance_log_id"; // int
+    public static final String MAINTENANCE_ENTRY_LOG_ID = "maintenance_log_id"; // int
 
     // MaintenanceType table
     // Stores codes for maintenance types (oil change, belt change, etc.)
@@ -129,7 +129,7 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.put(MAINTENANCE_ENTRY_NOTES, "TEXT");
         columns.put(MAINTENANCE_ENTRY_TYPE_ID, "INT");
-        columns.put(MAINTENANCE_LOG_ID, "INT");
+        columns.put(MAINTENANCE_ENTRY_LOG_ID, "INT");
         createTable(db, MAINTENANCE_ENTRIES_TABLE, columns);
 
         columns.clear();
