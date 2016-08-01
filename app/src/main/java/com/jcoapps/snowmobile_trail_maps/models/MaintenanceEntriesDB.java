@@ -1,21 +1,22 @@
 package com.jcoapps.snowmobile_trail_maps.models;
 
 import java.sql.Timestamp;
-import java.util.Collection;
 
 /**
- * Created by Jeremy on 7/30/2016.
+ * Created by Jeremy on 7/31/2016.
  */
-public class MaintenanceLogsDB {
+public class MaintenanceEntriesDB {
 
     private Long id;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-    private String name;
     private String notes;
-    private Collection<MaintenanceEntriesDB> maintenanceEntries;
+    private MaintenanceTypesDB type;
+    private MaintenanceLogsDB log;
 
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
     public void setId(Long id) {
         this.id = id;
@@ -37,10 +38,6 @@ public class MaintenanceLogsDB {
         this.updatedAt = updatedAt;
     }
 
-    public String getName() { return name; }
-
-    public void setName(String name) { this.name = name; }
-
     public String getNotes() {
         return notes;
     }
@@ -49,7 +46,19 @@ public class MaintenanceLogsDB {
         this.notes = notes;
     }
 
-    public Collection<MaintenanceEntriesDB> getMaintenanceEntries() { return maintenanceEntries; }
+    public MaintenanceTypesDB getType() {
+        return type;
+    }
 
-    public void setMaintenanceEntries(Collection<MaintenanceEntriesDB> maintenanceEntries) { this.maintenanceEntries = maintenanceEntries; }
+    public void setType(MaintenanceTypesDB type) {
+        this.type = type;
+    }
+
+    public MaintenanceLogsDB getLog() {
+        return log;
+    }
+
+    public void setLog(MaintenanceLogsDB log) {
+        this.log = log;
+    }
 }

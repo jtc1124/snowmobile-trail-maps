@@ -31,14 +31,14 @@ public class ConditionTypesDao {
         if (cursor.moveToFirst()) {
             do {
                 ConditionTypesDB conditionType = new ConditionTypesDB();
-                conditionType.setId(Long.parseLong(cursor.getString(0)));
+                conditionType.setId(cursor.getLong(0));
                 conditionType.setCreatedAt(new Timestamp(Long.parseLong(cursor.getString(1))));
                 conditionType.setUpdatedAt(new Timestamp(Long.parseLong(cursor.getString(2))));
                 conditionType.setName(cursor.getString(3));
                 conditionTypesList.add(conditionType);
             } while (cursor.moveToNext());
         }
-
+        db.close();
         return conditionTypesList;
     }
 }

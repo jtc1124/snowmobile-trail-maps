@@ -100,15 +100,16 @@ public class MapActivity extends AppCompatActivity {
             mapView.addLayer(graphicsLayer);
         }
         if (multipath == null) {
+            // Initialize the line and set the starting point
             multipath = new Polyline();
             multipath.startPath(points.getPoint(0).getX(), points.getPoint(0).getY());
         }
         if (path != null) {
+            // If a graphic already exists, remove it since we'll be adding a new one.
             graphicsLayer.removeGraphic(path.getUid());
         }
 
         if (points.getPointCount() > 1) {
-
             multipath.lineTo(points.getPoint(1).getX(), points.getPoint(1).getY());
 
             path = new Graphic(multipath, LINE_SYMBOL);
