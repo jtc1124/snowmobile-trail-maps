@@ -40,5 +40,7 @@ public class SledsActivity extends AppCompatActivity {
         sled.setNotes(notes);
 
         sledsDao.saveOrUpdateSled(sled);
+
+        // TODO: print message that sled has been created successfully
     }
 }

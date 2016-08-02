@@ -52,6 +52,7 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
     // SledsDB table
     // Stores information about snowmobiles
+    // TODO: add year, make, model as fields instead of just name
     public static final String SLEDS_TABLE = "sleds";
     public static final String SLED_NAME = "name"; // string
     public static final String SLED_MILEAGE = "mileage"; // decimal
