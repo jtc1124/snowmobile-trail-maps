@@ -54,7 +54,9 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
     // Stores information about snowmobiles
     // TODO: add year, make, model as fields instead of just name
     public static final String SLEDS_TABLE = "sleds";
-    public static final String SLED_NAME = "name"; // string
+    public static final String SLED_YEAR = "year"; // int
+    public static final String SLED_MAKE = "make"; // string
+    public static final String SLED_MODEL = "model"; // string
     public static final String SLED_MILEAGE = "mileage"; // decimal
     public static final String SLED_NOTES = "notes"; // string
     public static final String SLED_MAINTENANCE_LOG_ID = "maintenance_log_id"; // int
@@ -82,6 +84,10 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
     public static final String FRIENDS_TABLE = "friends";
     public static final String FRIEND_USER_NAME = "name"; // string
     public static final String FRIEND_FINDER_ACTIVE = "active"; // boolean
+
+    // TODO: add a trails table that  contains the name of a tral
+
+    // TODO: add a trail-coords table that contains the GPS coordinates that make up a trail
 
     public SnowmobileTrailDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -114,7 +120,9 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.clear();
 
-        columns.put(SLED_NAME, "TEXT NOT NULL");
+        columns.put(SLED_YEAR, "INT NOT NULL");
+        columns.put(SLED_MAKE, "TEXT NOT NULL");
+        columns.put(SLED_MODEL, "TEXT NOT NULL");
         columns.put(SLED_MILEAGE, "DOUBLE");
         columns.put(SLED_NOTES, "TEXT");
         columns.put(SLED_MAINTENANCE_LOG_ID, "INT");

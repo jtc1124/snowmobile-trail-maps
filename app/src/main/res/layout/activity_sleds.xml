@@ -1,53 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent" android:layout_height="fill_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:stretchColumns="*" >
 
-        <TableLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dip"
-            android:stretchColumns="*" >
+        <TableRow>
+            <EditText
+                android:id="@+id/sledYearField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="Year"
+                 />
+        </TableRow>
+        <TableRow>
+            <EditText
+                android:id="@+id/sledMakeField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Make"
+                />
+        </TableRow>
+        <TableRow>
+            <EditText
+                android:id="@+id/sledModelField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Model"
+                />
+        </TableRow>
+        <TableRow>
+            <EditText
+                android:id="@+id/sledMileageField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="Mileage"
+                />
+        </TableRow>
+        <TableRow>
+            <EditText
+                android:id="@+id/sledNotesField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Notes"
+                />
+        </TableRow>
+        <TableRow>
+            <Button
+                android:id="@+id/addSledButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="addSled"
+                android:text="Add Sled" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:id="@+id/sledAddedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+        </TableRow>
+    </TableLayout>
 
-            <TableRow>
-                <EditText
-                    android:id="@+id/sledNameField"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Name"
-                     />
-            </TableRow>
-            <TableRow>
-                <EditText
-                    android:id="@+id/sledMileageField"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:text="Mileage"
-                    />
-            </TableRow>
-            <TableRow>
-                <EditText
-                    android:id="@+id/sledNotesField"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Notes"
-                    />
-            </TableRow>
-            <TableRow>
-                <Button
-                    android:id="@+id/addSledButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="addSled"
-                    android:text="Add Sled" />
-            </TableRow>
-        </TableLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+    <ListView
+        android:id="@+id/sledsList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+</LinearLayout>

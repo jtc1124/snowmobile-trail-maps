@@ -10,7 +10,9 @@ public class SledsDB {
     private Long id;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-    private String name;
+    private Integer year;
+    private String make;
+    private String model;
     private Double mileage;
     private String notes;
     private MaintenanceLogsDB maintenanceLog;
@@ -39,12 +41,28 @@ public class SledsDB {
         this.updatedAt = updatedAt;
     }
 
-    public String getName() {
-        return name;
+    public Integer getYear() {
+        return year;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public String getMake() {
+        return make;
+    }
+
+    public void setMake(String make) {
+        this.make = make;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public Double getMileage() {

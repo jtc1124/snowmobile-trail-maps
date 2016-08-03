@@ -30,7 +30,7 @@ public class SledsDao {
     public List<SledsDB> getAllSleds() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         List<SledsDB> sledsList = new ArrayList<SledsDB>();
-        String selectQuery = "SELECT * FROM " + dbHelper.SLEDS_TABLE + ";";
+        String selectQuery = "SELECT id, created_at, updated_at, year, make, model, mileage, notes, maintenance_log_id  FROM " + dbHelper.SLEDS_TABLE + ";";
 
         Cursor sledsCursor = db.rawQuery(selectQuery, null);
 
@@ -43,13 +43,15 @@ public class SledsDao {
                 sled.setId(sledsCursor.getLong(0));
                 sled.setCreatedAt(new Timestamp(sledsCursor.getLong(1)));
                 sled.setUpdatedAt(new Timestamp(sledsCursor.getLong(2)));
-                sled.setName(sledsCursor.getString(3));
-                sled.setMileage(sledsCursor.getDouble(4));
-                sled.setNotes(sledsCursor.getString(5));
+                sled.setYear(sledsCursor.getInt(3));
+                sled.setMake(sledsCursor.getString(4));
+                sled.setModel(sledsCursor.getString(5));
+                sled.setMileage(sledsCursor.getDouble(6));
+                sled.setNotes(sledsCursor.getString(7));
 
                 // get associated maintenance log data
-                maintenanceLog.setId(sledsCursor.getLong(6));
-                String selectMaintenanceLogByIdQuery = "SELECT * FROM " + dbHelper.MAINTENANCE_LOGS_TABLE + " WHERE id = " + maintenanceLog.getId() + ";";
+                maintenanceLog.setId(sledsCursor.getLong(8));
+                String selectMaintenanceLogByIdQuery = "SELECT id, created_at, updated_at, name, notes FROM " + dbHelper.MAINTENANCE_LOGS_TABLE + " WHERE id = " + maintenanceLog.getId() + ";";
                 Cursor maintenanceCursor = db.rawQuery(selectMaintenanceLogByIdQuery, null);
 
                 if (maintenanceCursor.moveToFirst()) {
@@ -59,7 +61,7 @@ public class SledsDao {
                     maintenanceLog.setName(maintenanceCursor.getString(3));
                     maintenanceLog.setNotes(maintenanceCursor.getString(4));
 
-                    String selectEntriesByLogIdQuery = "SELECT * FROM " + dbHelper.MAINTENANCE_ENTRIES_TABLE + " WHERE maintenance_log_id = " + maintenanceLog.getId() + ";";
+                    String selectEntriesByLogIdQuery = "SELECT id, created_at, updated_at, notes, maintenance_type_id, maintenance_log_id FROM " + dbHelper.MAINTENANCE_ENTRIES_TABLE + " WHERE maintenance_log_id = " + maintenanceLog.getId() + ";";
                     Cursor entriesCursor = db.rawQuery(selectEntriesByLogIdQuery, null);
 
                     // get associated log entries
@@ -79,7 +81,7 @@ public class SledsDao {
                             entry.setLog(maintenanceLog);
 
                             // get associated maintenance type
-                            String selectMaintenanceTypeByIdQuery = "SELECT * FROM " + dbHelper.MAINTENANCE_TYPES_TABLE + " WHERE id = " + maintenanceType.getId() + ";";
+                            String selectMaintenanceTypeByIdQuery = "SELECT id, created_at, updated_at, name FROM " + dbHelper.MAINTENANCE_TYPES_TABLE + " WHERE id = " + maintenanceType.getId() + ";";
                             Cursor typeCursor = db.rawQuery(selectMaintenanceTypeByIdQuery, null);
 
                             if (typeCursor.moveToFirst()) {
@@ -115,7 +117,9 @@ public class SledsDao {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(dbHelper.UPDATED_AT, System.currentTimeMillis());
-        cv.put(dbHelper.SLED_NAME, sled.getName());
+        cv.put(dbHelper.SLED_YEAR, sled.getYear());
+        cv.put(dbHelper.SLED_MAKE, sled.getMake());
+        cv.put(dbHelper.SLED_MODEL, sled.getModel());
         cv.put(dbHelper.SLED_MILEAGE, sled.getMileage());
         cv.put(dbHelper.SLED_NOTES, sled.getNotes());
 

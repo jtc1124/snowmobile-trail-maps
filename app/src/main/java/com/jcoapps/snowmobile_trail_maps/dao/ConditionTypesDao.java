@@ -24,7 +24,7 @@ public class ConditionTypesDao {
     public List<ConditionTypesDB> getAllConditionTypes() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         List<ConditionTypesDB> conditionTypesList = new ArrayList<ConditionTypesDB>();
-        String selectQuery = "SELECT * FROM " + dbHelper.CONDITION_TYPES_TABLE + ";";
+        String selectQuery = "SELECT id, created_at, updated_at, name FROM " + dbHelper.CONDITION_TYPES_TABLE + ";";
 
         Cursor cursor = db.rawQuery(selectQuery, null);
 
