@@ -87,6 +87,7 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
     // TrailsDB table
     // Stores custom trails
+    // TODO: connect trails table to trail_journals table (trail can have many journals)
     public static final String TRAILS_TABLE = "trails";
     public static final String TRAIL_NAME = "name";
 
