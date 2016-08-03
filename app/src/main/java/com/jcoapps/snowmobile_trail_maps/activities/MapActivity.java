@@ -5,6 +5,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
 import com.esri.android.map.GraphicsLayer;
 import com.esri.android.map.LocationDisplayManager;
@@ -23,6 +24,9 @@ import com.esri.core.symbol.SimpleLineSymbol;
 import com.esri.core.tasks.geocode.Locator;
 import com.jcoapps.snowmobile_trail_maps.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MapActivity extends AppCompatActivity {
 
     private MapView mapView = null;
@@ -35,11 +39,13 @@ public class MapActivity extends AppCompatActivity {
     private Polyline multipath;
     private Graphic path;
     private SimpleLineSymbol LINE_SYMBOL = new SimpleLineSymbol(Color.GREEN, 3, SimpleLineSymbol.STYLE.DASH);
+    private List<Point> trailPoints;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        trailPoints = new ArrayList<Point>();
         mapPoints = new MultiPoint();
         mapView = (MapView) findViewById(R.id.map);
         mapView.setOnStatusChangedListener(statusChangedListener);
@@ -51,11 +57,16 @@ public class MapActivity extends AppCompatActivity {
         setupLocationListener();
     }
 
+    public void saveTrail(View view) {
+        // TODO implement saving trail coords to DB
+        // Reset current path once saved?
+
+    }
+
     private void setupLocationListener() {
         if ((mapView != null) && (mapView.isLoaded())) {
             locationDisplayManager = mapView.getLocationDisplayManager();
             locationDisplayManager.setLocationListener(new LocationListener() {
-
                 boolean locationChanged = false;
 
                 // Zooms to the current location when the first GPS fix arrives
@@ -69,7 +80,12 @@ public class MapActivity extends AppCompatActivity {
                     locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
 
                     Point currentCoord = getAsPoint(loc);
+
+                    // Add the point to the drawable series of points
                     mapPoints.add(currentCoord);
+
+                    // Add the point to the list of points that will be added to the database
+                    trailPoints.add(currentCoord);
 
                     // Only draw when there are 2 points available
                     if (mapPoints.getPointCount() == 2) {

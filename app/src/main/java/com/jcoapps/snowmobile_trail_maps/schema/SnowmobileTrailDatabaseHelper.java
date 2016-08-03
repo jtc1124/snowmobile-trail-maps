@@ -85,9 +85,17 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
     public static final String FRIEND_USER_NAME = "name"; // string
     public static final String FRIEND_FINDER_ACTIVE = "active"; // boolean
 
-    // TODO: add a trails table that  contains the name of a tral
+    // TrailsDB table
+    // Stores custom trails
+    public static final String TRAILS_TABLE = "trails";
+    public static final String TRAIL_NAME = "name";
 
-    // TODO: add a trail-coords table that contains the GPS coordinates that make up a trail
+    // TrailPathsDB table
+    // Stores the GPS coordinates that make up a trail
+    public static final String TRAIL_PATHS_TABLE = "trail_paths";
+    public static final String TRAIL_PATH_LATITUDE = "latitude";
+    public static final String TRAIL_PATH_LONGITUDE = "longitude";
+    public static final String TRAIL_PATH_TRAIL_ID = "trail_id";
 
     public SnowmobileTrailDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -153,6 +161,16 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
         createTable(db, FRIENDS_TABLE, columns);
 
         columns.clear();
+
+        columns.put(TRAIL_NAME, "TEXT NOT NULL");
+        createTable(db, TRAILS_TABLE, columns);
+
+        columns.clear();
+
+        columns.put(TRAIL_PATH_LATITUDE, "FLOAT NOT NULL");
+        columns.put(TRAIL_PATH_LONGITUDE, "FLOAT NOT NULL");
+        columns.put(TRAIL_PATH_TRAIL_ID, "INT NOT NULL");
+        createTable(db, TRAIL_PATHS_TABLE, columns);
 
         // Insert predefined types into type tables
         insertConditionTypes(db);
