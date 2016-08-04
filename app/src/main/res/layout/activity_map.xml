@@ -28,6 +28,19 @@
                 android:layout_height="wrap_content"
                 android:onClick="saveTrail"
                 android:text="Save Trail" />
+            <Button
+                android:id="@+id/showTrailButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="showTrail"
+                android:text="Show Trail" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:id="@+id/trailAddedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
         </TableRow>
     </TableLayout>
 </RelativeLayout>

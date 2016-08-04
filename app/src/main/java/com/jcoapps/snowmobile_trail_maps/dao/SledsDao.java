@@ -12,7 +12,6 @@ import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
