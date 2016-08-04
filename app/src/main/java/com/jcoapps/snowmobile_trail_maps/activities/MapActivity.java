@@ -5,6 +5,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import com.esri.android.map.GraphicsLayer;
 import com.esri.android.map.LocationDisplayManager;
@@ -22,6 +24,14 @@ import com.esri.core.map.Graphic;
 import com.esri.core.symbol.SimpleLineSymbol;
 import com.esri.core.tasks.geocode.Locator;
 import com.jcoapps.snowmobile_trail_maps.R;
+import com.jcoapps.snowmobile_trail_maps.dao.TrailsDao;
+import com.jcoapps.snowmobile_trail_maps.models.TrailPathsDB;
+import com.jcoapps.snowmobile_trail_maps.models.TrailsDB;
+import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -35,14 +45,23 @@ public class MapActivity extends AppCompatActivity {
     private Polyline multipath;
     private Graphic path;
     private SimpleLineSymbol LINE_SYMBOL = new SimpleLineSymbol(Color.GREEN, 3, SimpleLineSymbol.STYLE.DASH);
+    private List<Point> trailPoints;
+    private List<TrailPathsDB> trailPaths;
+    private TrailsDB trail;
+    private SnowmobileTrailDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        trailPoints = new ArrayList<Point>();
+        trailPaths = new ArrayList<TrailPathsDB>();
+        trail = new TrailsDB();
         mapPoints = new MultiPoint();
         mapView = (MapView) findViewById(R.id.map);
         mapView.setOnStatusChangedListener(statusChangedListener);
+
+        dbHelper = new SnowmobileTrailDatabaseHelper(this);
         //mapView.setOnSingleTapListener(mapTapCallback);
 
         // Setup geocoding service
@@ -51,11 +70,39 @@ public class MapActivity extends AppCompatActivity {
         setupLocationListener();
     }
 
+    public void saveTrail(View view) {
+        // Reset current path once saved?
+        TextView trailAddedText = (TextView)findViewById(R.id.trailAddedText);
+        TrailsDao trailsDao = new TrailsDao(dbHelper);
+        trail.setName("My Trail");
+        trail.setPaths(trailPaths);
+        if (trailsDao.saveOrUpdateTrail(trail)) {
+            trailAddedText.setText("Trail successfully created.");
+        }
+        else {
+            trailAddedText.setText("Something went wrong. Trail was not created.");
+        }
+    }
+
+    public void showTrail(View view) {
+        TrailsDao trailsDao = new TrailsDao(dbHelper);
+        TrailsDB trail = trailsDao.getTrailByName("My Trail");
+        Collection<TrailPathsDB> paths = trail.getPaths();
+        mapPoints.setEmpty();
+
+        for (TrailPathsDB path : paths) {
+            // TODO change trailpathsDb lat and lon to double
+            Point coord = new Point(new Double(path.getLatitude()), new Double(path.getLongitude()));
+            mapPoints.add(coord);
+        }
+
+        drawFullTrailPath(mapPoints);
+    }
+
     private void setupLocationListener() {
         if ((mapView != null) && (mapView.isLoaded())) {
             locationDisplayManager = mapView.getLocationDisplayManager();
             locationDisplayManager.setLocationListener(new LocationListener() {
-
                 boolean locationChanged = false;
 
                 // Zooms to the current location when the first GPS fix arrives
@@ -69,7 +116,18 @@ public class MapActivity extends AppCompatActivity {
                     locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
 
                     Point currentCoord = getAsPoint(loc);
+
+                    // Add the point to the drawable series of points
                     mapPoints.add(currentCoord);
+
+                    TrailPathsDB currentPath = new TrailPathsDB();
+                    currentPath.setLatitude(new Float(currentCoord.getX()));
+                    currentPath.setLongitude(new Float(currentCoord.getY()));
+                    currentPath.setTrail(trail);
+                    trailPaths.add(currentPath);
+
+                    // Add the point to the list of points that will be added to the database
+                    //trailPoints.add(currentCoord);
 
                     // Only draw when there are 2 points available
                     if (mapPoints.getPointCount() == 2) {
@@ -93,6 +151,29 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    // Method to draw an entire trail path that was saved in the DB
+    private void drawFullTrailPath(MultiPoint points) {
+        if (graphicsLayer == null) {
+            graphicsLayer = new GraphicsLayer();
+            mapView.addLayer(graphicsLayer);
+        }
+        if (multipath == null) {
+            // Initialize the line and set the starting point
+            multipath = new Polyline();
+            multipath.startPath(points.getPoint(0).getX(), points.getPoint(0).getY());
+        }
+        if (path != null) {
+            // If a graphic already exists, remove it since we'll be adding a new one.
+            graphicsLayer.removeGraphic(path.getUid());
+        }
+
+        for (int i = 0; i < points.getPointCount(); i++) {
+            multipath.lineTo(points.getPoint(i).getX(), points.getPoint(i).getY());
+        }
+        path = new Graphic(multipath, LINE_SYMBOL);
+        graphicsLayer.addGraphic(path);
+    }
+
     private void drawPolylineOrPolygon(MultiPoint points) {
         // Create and add graphics layer if it doesn't already exist
         if (graphicsLayer == null) {
@@ -100,15 +181,16 @@ public class MapActivity extends AppCompatActivity {
             mapView.addLayer(graphicsLayer);
         }
         if (multipath == null) {
+            // Initialize the line and set the starting point
             multipath = new Polyline();
             multipath.startPath(points.getPoint(0).getX(), points.getPoint(0).getY());
         }
         if (path != null) {
+            // If a graphic already exists, remove it since we'll be adding a new one.
             graphicsLayer.removeGraphic(path.getUid());
         }
 
         if (points.getPointCount() > 1) {
-
             multipath.lineTo(points.getPoint(1).getX(), points.getPoint(1).getY());
 
             path = new Graphic(multipath, LINE_SYMBOL);
@@ -144,6 +226,11 @@ public class MapActivity extends AppCompatActivity {
 
     private Point getAsPoint(Location loc) {
         Point wgsPoint = new Point(loc.getLongitude(), loc.getLatitude());
+        return  (Point) GeometryEngine.project(wgsPoint,
+                SpatialReference.create(4326), mapSr);
+    }
+    private Point getAsPoint(TrailPathsDB path) {
+        Point wgsPoint = new Point(new Double(path.getLongitude()), new Double(path.getLatitude()));
         return  (Point) GeometryEngine.project(wgsPoint,
                 SpatialReference.create(4326), mapSr);
     }

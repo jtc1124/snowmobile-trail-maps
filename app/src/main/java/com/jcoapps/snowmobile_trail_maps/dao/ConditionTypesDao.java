@@ -24,21 +24,21 @@ public class ConditionTypesDao {
     public List<ConditionTypesDB> getAllConditionTypes() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         List<ConditionTypesDB> conditionTypesList = new ArrayList<ConditionTypesDB>();
-        String selectQuery = "SELECT * FROM " + dbHelper.CONDITION_TYPES_TABLE + ";";
+        String selectQuery = "SELECT id, created_at, updated_at, name FROM " + dbHelper.CONDITION_TYPES_TABLE + ";";
 
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
             do {
                 ConditionTypesDB conditionType = new ConditionTypesDB();
-                conditionType.setId(Long.parseLong(cursor.getString(0)));
+                conditionType.setId(cursor.getLong(0));
                 conditionType.setCreatedAt(new Timestamp(Long.parseLong(cursor.getString(1))));
                 conditionType.setUpdatedAt(new Timestamp(Long.parseLong(cursor.getString(2))));
                 conditionType.setName(cursor.getString(3));
                 conditionTypesList.add(conditionType);
             } while (cursor.moveToNext());
         }
-
+        db.close();
         return conditionTypesList;
     }
 }

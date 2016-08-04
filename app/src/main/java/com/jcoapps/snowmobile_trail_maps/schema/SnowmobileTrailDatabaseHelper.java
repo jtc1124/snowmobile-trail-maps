@@ -20,60 +20,83 @@ import java.util.HashMap;
  */
 public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "snowmobile_trail_maps";
+    public static final String DATABASE_NAME = "snowmobile_trail_maps";
     private static final int DATABASE_VERSION = 1;
 
     // Columns that belong in every table
-    private static final String ID = "id"; // int
-    private static final String CREATED_AT = "created_at"; // timestamp
-    private static final String UPDATED_AT = "updated_at"; // timestamp
+    public static final String ID = "id"; // int
+    public static final String CREATED_AT = "created_at"; // timestamp
+    public static final String UPDATED_AT = "updated_at"; // timestamp
 
     // UsersDB table
     // Stores user login information
-    private static final String USERS_TABLE = "users";
-    private static final String USER_EMAIL = "email"; // string
-    private static final String USER_NAME = "name"; // string
-    private static final String USER_PASSWORD = "password"; // string
+    public static final String USERS_TABLE = "users";
+    public static final String USER_EMAIL = "email"; // string
+    public static final String USER_NAME = "name"; // string
+    public static final String USER_PASSWORD = "password"; // string
 
     // TrailJournal table
     // Stores statistics for riding sessions
-    private static final String TRAIL_JOURNALS_TABLE = "trail_journals";
-    private static final String TRAIL_JOURNAL_ENTRY_NAME = "entry_name"; // string
-    private static final String TRAIL_JOURNAL_MILES = "miles"; // decimal
-    private static final String TRAIL_JOURNAL_MAX_SPEED = "max_speed"; // decimal
-    private static final String TRAIL_JOURNAL_MIN_SPEED = "min_speed"; // decimal
-    private static final String TRAIL_JOURNAL_AVG_SPEED = "avg_speed"; // decimal
-    private static final String TRAIL_JOURNAL_CONDITION_ID = "condition_id"; // int
+    public static final String TRAIL_JOURNALS_TABLE = "trail_journals";
+    public static final String TRAIL_JOURNAL_ENTRY_NAME = "entry_name"; // string
+    public static final String TRAIL_JOURNAL_MILES = "miles"; // decimal
+    public static final String TRAIL_JOURNAL_MAX_SPEED = "max_speed"; // decimal
+    public static final String TRAIL_JOURNAL_MIN_SPEED = "min_speed"; // decimal
+    public static final String TRAIL_JOURNAL_AVG_SPEED = "avg_speed"; // decimal
+    public static final String TRAIL_JOURNAL_CONDITION_ID = "condition_type_id"; // int
 
     // ConditionType table
     // Stores codes for trail conditions (smooth, grassy, ice, etc.)
     public static final String CONDITION_TYPES_TABLE = "condition_types";
-    private static final String CONDITION_TYPE_NAME = "name"; // string
+    public static final String CONDITION_TYPE_NAME = "name"; // string
 
     // SledsDB table
     // Stores information about snowmobiles
-    private static final String SLEDS_TABLE = "sleds";
-    private static final String SLED_NAME = "name"; // string
-    private static final String SLED_MILEAGE = "mileage"; // decimal
-    private static final String SLED_NOTES = "notes"; // string
-    private static final String SLED_MAINTENANCE_LOG_ID = "maintenance_log_id"; // int
+    // TODO: add year, make, model as fields instead of just name
+    public static final String SLEDS_TABLE = "sleds";
+    public static final String SLED_YEAR = "year"; // int
+    public static final String SLED_MAKE = "make"; // string
+    public static final String SLED_MODEL = "model"; // string
+    public static final String SLED_MILEAGE = "mileage"; // decimal
+    public static final String SLED_NOTES = "notes"; // string
+    public static final String SLED_MAINTENANCE_LOG_ID = "maintenance_log_id"; // int
 
     // MaintenanceLog table
     // Stores maintenance data for a sled
-    private static final String MAINTENANCE_LOGS_TABLE = "maintenance_logs";
-    private static final String MAINTENANCE_LOG_TYPE = "maintenance_type_id"; // int
-    private static final String MAINTENANCE_LOG_NOTES = "notes"; // string
+    public static final String MAINTENANCE_LOGS_TABLE = "maintenance_logs";
+    public static final String MAINTENANCE_LOG_NAME = "name"; // string
+    public static final String MAINTENANCE_LOG_NOTES = "notes"; // string
+
+    // MaintenanceLogEntry table
+    // Stores an entry for a maintenance log
+    public static final String MAINTENANCE_ENTRIES_TABLE = "maintenance_entries";
+    public static final String MAINTENANCE_ENTRY_NOTES = "notes"; // string
+    public static final String MAINTENANCE_ENTRY_TYPE_ID = "maintenance_type_id"; // int
+    public static final String MAINTENANCE_ENTRY_LOG_ID = "maintenance_log_id"; // int
 
     // MaintenanceType table
     // Stores codes for maintenance types (oil change, belt change, etc.)
-    private static final String MAINTENANCE_TYPES_TABLE = "maintenance_types";
-    private static final String MAINTENANCE_TYPE_NAME = "name"; // string
+    public static final String MAINTENANCE_TYPES_TABLE = "maintenance_types";
+    public static final String MAINTENANCE_TYPE_NAME = "name"; // string
 
     // FriendsDB table
     // Stores users who are friends of the user
-    private static final String FRIENDS_TABLE = "friends";
-    private static final String FRIEND_USER_NAME = "name"; // string
-    private static final String FRIEND_FINDER_ACTIVE = "active"; // boolean
+    public static final String FRIENDS_TABLE = "friends";
+    public static final String FRIEND_USER_NAME = "name"; // string
+    public static final String FRIEND_FINDER_ACTIVE = "active"; // boolean
+
+    // TrailsDB table
+    // Stores custom trails
+    // TODO: connect trails table to trail_journals table (trail can have many journals)
+    public static final String TRAILS_TABLE = "trails";
+    public static final String TRAIL_NAME = "name";
+
+    // TrailPathsDB table
+    // Stores the GPS coordinates that make up a trail
+    public static final String TRAIL_PATHS_TABLE = "trail_paths";
+    public static final String TRAIL_PATH_LATITUDE = "latitude";
+    public static final String TRAIL_PATH_LONGITUDE = "longitude";
+    public static final String TRAIL_PATH_TRAIL_ID = "trail_id";
 
     public SnowmobileTrailDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -106,7 +129,9 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.clear();
 
-        columns.put(SLED_NAME, "TEXT NOT NULL");
+        columns.put(SLED_YEAR, "INT NOT NULL");
+        columns.put(SLED_MAKE, "TEXT NOT NULL");
+        columns.put(SLED_MODEL, "TEXT NOT NULL");
         columns.put(SLED_MILEAGE, "DOUBLE");
         columns.put(SLED_NOTES, "TEXT");
         columns.put(SLED_MAINTENANCE_LOG_ID, "INT");
@@ -114,9 +139,16 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.clear();
 
-        columns.put(MAINTENANCE_LOG_TYPE, "TEXT NOT NULL");
+        columns.put(MAINTENANCE_LOG_NAME, "TEXT");
         columns.put(MAINTENANCE_LOG_NOTES, "TEXT");
         createTable(db, MAINTENANCE_LOGS_TABLE, columns);
+
+        columns.clear();
+
+        columns.put(MAINTENANCE_ENTRY_NOTES, "TEXT");
+        columns.put(MAINTENANCE_ENTRY_TYPE_ID, "INT");
+        columns.put(MAINTENANCE_ENTRY_LOG_ID, "INT");
+        createTable(db, MAINTENANCE_ENTRIES_TABLE, columns);
 
         columns.clear();
 
@@ -130,6 +162,16 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
         createTable(db, FRIENDS_TABLE, columns);
 
         columns.clear();
+
+        columns.put(TRAIL_NAME, "TEXT NOT NULL");
+        createTable(db, TRAILS_TABLE, columns);
+
+        columns.clear();
+
+        columns.put(TRAIL_PATH_LATITUDE, "FLOAT NOT NULL");
+        columns.put(TRAIL_PATH_LONGITUDE, "FLOAT NOT NULL");
+        columns.put(TRAIL_PATH_TRAIL_ID, "INT NOT NULL");
+        createTable(db, TRAIL_PATHS_TABLE, columns);
 
         // Insert predefined types into type tables
         insertConditionTypes(db);

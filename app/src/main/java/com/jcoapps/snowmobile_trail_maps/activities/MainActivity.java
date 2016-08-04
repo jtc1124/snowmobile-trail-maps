@@ -50,6 +50,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(db);
     }
 
+    public void sleds(View view) {
+        Intent sleds = new Intent(MainActivity.this, SledsActivity.class);
+        startActivity(sleds);
+    }
+
     public void displayConditionTypes() {
         ConditionTypesDao conditionTypesDao = new ConditionTypesDao(dbHelper);
         List<ConditionTypesDB> conditionTypes = conditionTypesDao.getAllConditionTypes();

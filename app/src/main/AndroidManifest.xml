@@ -23,6 +23,9 @@
         <activity
             android:name=".activities.MapActivity" >
         </activity>
+        <activity
+            android:name=".activities.SledsActivity" >
+        </activity>
         <activity android:name=".activities.AndroidDatabaseManager"
             android:theme="@style/Theme.AppCompat.Light"/>
     </application>

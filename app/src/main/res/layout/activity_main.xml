@@ -54,6 +54,15 @@
                     android:onClick="viewDB"
                     android:text="View DB" />
             </TableRow>
+
+            <TableRow>
+                <Button
+                    android:id="@+id/sledsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="sleds"
+                    android:text="Sleds" />
+            </TableRow>
         </TableLayout>
 
     </LinearLayout>
