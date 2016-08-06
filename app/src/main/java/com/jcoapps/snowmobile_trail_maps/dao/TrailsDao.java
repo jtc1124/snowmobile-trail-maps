@@ -21,11 +21,17 @@ public class TrailsDao {
 
     public TrailsDao(SnowmobileTrailDatabaseHelper dbHelper) { this.dbHelper = dbHelper; }
 
+    public List<TrailsDB> getAllTrails() {
+        List<TrailsDB> trails = new ArrayList<TrailsDB>();
+        // TODO Stub
+        return trails;
+    }
+
     public TrailsDB getTrailByName(String name) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         TrailsDB trail = new TrailsDB();
 
-        String selectQuery = "SELECT id, created_at, updated_at, name  FROM " + dbHelper.TRAILS_TABLE + ";";
+        String selectQuery = "SELECT id, created_at, updated_at, name  FROM " + dbHelper.TRAILS_TABLE + " WHERE name = '" + name + "';";
 
         Cursor cursor = db.rawQuery(selectQuery, null);
 

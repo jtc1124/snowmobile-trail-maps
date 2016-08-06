@@ -1,12 +1,16 @@
 package com.jcoapps.snowmobile_trail_maps.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
 
 /**
  * Created by Jeremy on 8/2/2016.
  */
-public class TrailsDB {
+public class TrailsDB implements Serializable {
 
     private Long id;
     private Timestamp createdAt;

@@ -1,5 +1,6 @@
 package com.jcoapps.snowmobile_trail_maps.activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -71,19 +72,17 @@ public class MapActivity extends AppCompatActivity {
     }
 
     public void saveTrail(View view) {
-        // Reset current path once saved?
-        TextView trailAddedText = (TextView)findViewById(R.id.trailAddedText);
-        TrailsDao trailsDao = new TrailsDao(dbHelper);
         trail.setName("My Trail");
         trail.setPaths(trailPaths);
-        if (trailsDao.saveOrUpdateTrail(trail)) {
-            trailAddedText.setText("Trail successfully created.");
-        }
-        else {
-            trailAddedText.setText("Something went wrong. Trail was not created.");
-        }
+        Intent saveTrail = new Intent(MapActivity.this, SaveTrailActivity.class);
+        Bundle b = new Bundle();
+        b.putSerializable("TRAIL_DATA", trail);
+        saveTrail.putExtras(b);
+        //saveTrail.putExtra("TRAIL_DATA", trail);
+        startActivity(saveTrail);
     }
 
+    // TODO: in SaveTrailActivity show list of all trails, when one is clicked, display it on the map
     public void showTrail(View view) {
         TrailsDao trailsDao = new TrailsDao(dbHelper);
         TrailsDB trail = trailsDao.getTrailByName("My Trail");
@@ -95,7 +94,7 @@ public class MapActivity extends AppCompatActivity {
             Point coord = new Point(new Double(path.getLatitude()), new Double(path.getLongitude()));
             mapPoints.add(coord);
         }
-
+        // TODO if no results come back from the DB query, don't try to draw
         drawFullTrailPath(mapPoints);
     }
 
