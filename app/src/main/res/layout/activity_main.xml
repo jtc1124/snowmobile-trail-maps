@@ -63,6 +63,15 @@
                     android:onClick="sleds"
                     android:text="Sleds" />
             </TableRow>
+
+            <TableRow>
+                <Button
+                    android:id="@+id/trailsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="trails"
+                    android:text="Trails" />
+            </TableRow>
         </TableLayout>
 
     </LinearLayout>

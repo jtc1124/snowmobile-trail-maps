@@ -27,6 +27,9 @@
             android:name=".activities.SledsActivity" >
         </activity>
         <activity
+            android:name=".activities.TrailsActivity" >
+        </activity>
+        <activity
             android:name=".activities.SaveTrailActivity" >
         </activity>
         <activity android:name=".activities.AndroidDatabaseManager"

@@ -65,6 +65,23 @@ public class MapActivity extends AppCompatActivity {
         dbHelper = new SnowmobileTrailDatabaseHelper(this);
         //mapView.setOnSingleTapListener(mapTapCallback);
 
+        // Check if a trail to display was passed to this activity
+        Bundle b = this.getIntent().getExtras();
+        if (b != null) {
+            trail = (TrailsDB) b.getSerializable("SELECTED_TRAIL");
+
+            Collection<TrailPathsDB> paths = trail.getPaths();
+            mapPoints.setEmpty();
+
+            for (TrailPathsDB path : paths) {
+                // TODO change trailpathsDb lat and lon to double
+                Point coord = new Point(new Double(path.getLatitude()), new Double(path.getLongitude()));
+                mapPoints.add(coord);
+            }
+
+            drawFullTrailPath(mapPoints);
+        }
+
         // Setup geocoding service
         //setupLocator();
         // Setup service to display current device location
@@ -78,24 +95,7 @@ public class MapActivity extends AppCompatActivity {
         Bundle b = new Bundle();
         b.putSerializable("TRAIL_DATA", trail);
         saveTrail.putExtras(b);
-        //saveTrail.putExtra("TRAIL_DATA", trail);
         startActivity(saveTrail);
-    }
-
-    // TODO: in SaveTrailActivity show list of all trails, when one is clicked, display it on the map
-    public void showTrail(View view) {
-        TrailsDao trailsDao = new TrailsDao(dbHelper);
-        TrailsDB trail = trailsDao.getTrailByName("My Trail");
-        Collection<TrailPathsDB> paths = trail.getPaths();
-        mapPoints.setEmpty();
-
-        for (TrailPathsDB path : paths) {
-            // TODO change trailpathsDb lat and lon to double
-            Point coord = new Point(new Double(path.getLatitude()), new Double(path.getLongitude()));
-            mapPoints.add(coord);
-        }
-        // TODO if no results come back from the DB query, don't try to draw
-        drawFullTrailPath(mapPoints);
     }
 
     private void setupLocationListener() {
@@ -225,11 +225,6 @@ public class MapActivity extends AppCompatActivity {
 
     private Point getAsPoint(Location loc) {
         Point wgsPoint = new Point(loc.getLongitude(), loc.getLatitude());
-        return  (Point) GeometryEngine.project(wgsPoint,
-                SpatialReference.create(4326), mapSr);
-    }
-    private Point getAsPoint(TrailPathsDB path) {
-        Point wgsPoint = new Point(new Double(path.getLongitude()), new Double(path.getLatitude()));
         return  (Point) GeometryEngine.project(wgsPoint,
                 SpatialReference.create(4326), mapSr);
     }
