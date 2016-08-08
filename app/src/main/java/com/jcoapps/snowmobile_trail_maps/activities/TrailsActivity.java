@@ -6,12 +6,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.jcoapps.snowmobile_trail_maps.R;
 import com.jcoapps.snowmobile_trail_maps.dao.TrailsDao;
 import com.jcoapps.snowmobile_trail_maps.models.TrailsDB;
 import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,13 @@ public class TrailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trails);
         dbHelper = new SnowmobileTrailDatabaseHelper(this);
+
+        Bundle b = this.getIntent().getExtras();
+        if (b != null) {
+            String message = b.getString("TRAIL_SAVE_MESSAGE");
+            TextView trailAddedText = (TextView) findViewById(R.id.trailAddedText);
+            trailAddedText.setText(message);
+        }
 
         showTrails(dbHelper);
     }

@@ -1,5 +1,6 @@
 package com.jcoapps.snowmobile_trail_maps.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -39,8 +40,6 @@ public class SaveTrailActivity extends AppCompatActivity {
             EditText nameField = (EditText)findViewById(R.id.trailNameField);
             nameField.setText(trail.getName());
         }
-
-        showTrails(dbHelper);
     }
 
     public void addTrail(View view) {
@@ -50,40 +49,15 @@ public class SaveTrailActivity extends AppCompatActivity {
         TrailsDao trailsDao = new TrailsDao(dbHelper);
         trail.setName(nameField.getText().toString());
         if (trailsDao.saveOrUpdateTrail(trail)) {
-            trailAddedText.setText("Trail successfully created.");
-            showTrails(dbHelper);
+            // Open TrailsActivity to display the trails list on successful save
+            Intent trails = new Intent(SaveTrailActivity.this, TrailsActivity.class);
+            Bundle b = new Bundle();
+            b.putString("TRAIL_SAVE_MESSAGE", "Trail was saved successfully.");
+            trails.putExtras(b);
+            startActivity(trails);
         }
         else {
             trailAddedText.setText("Something went wrong. Trail was not successfully created.");
         }
-    }
-
-    public void showTrails(SnowmobileTrailDatabaseHelper dbHelper) {
-        list = (ListView)findViewById(R.id.trailsList);
-        TrailsDao trailsDao = new TrailsDao(dbHelper);
-        List<TrailsDB> trailsDBList = trailsDao.getAllTrails();
-        List<String> trailsList = new ArrayList<String>();
-
-        // Transform the DB object into a string for each trail DB
-        // and add to the list
-        for (TrailsDB trail : trailsDBList) {
-            String name = trail.getName();
-            Long id = trail.getId();
-            Integer numPoints = trail.getPaths().size();
-
-            String trailString = name + "\nID: " + id + "\nPoint Count: " + numPoints;
-            trailsList.add(trailString);
-        }
-
-        listAdapter = new ArrayAdapter<String>(this, R.layout.trails_list, trailsList);
-        list.setAdapter(listAdapter);
-
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int postition, long id) {
-                // TODO: when a list item is clicked, get the trail path data and send it to be drawn on the map
-
-            }
-        });
     }
 }

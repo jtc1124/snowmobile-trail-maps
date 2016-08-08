@@ -17,6 +17,7 @@ public class TrailsDB implements Serializable {
     private Timestamp updatedAt;
     private String name;
     private Collection<TrailPathsDB> paths;
+    private Collection<TrailJournalsDB> journals;
 
     public Long getId() {
         return id;
@@ -56,5 +57,13 @@ public class TrailsDB implements Serializable {
 
     public void setPaths(Collection<TrailPathsDB> paths) {
         this.paths = paths;
+    }
+
+    public Collection<TrailJournalsDB> getJournals() {
+        return journals;
+    }
+
+    public void setJournals(Collection<TrailJournalsDB> journals) {
+        this.journals = journals;
     }
 }

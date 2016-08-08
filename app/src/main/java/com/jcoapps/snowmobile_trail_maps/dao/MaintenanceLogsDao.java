@@ -25,7 +25,7 @@ public class MaintenanceLogsDao {
         cv.put(dbHelper.MAINTENANCE_LOG_NAME, log.getName());
         cv.put(dbHelper.MAINTENANCE_LOG_NOTES, log.getNotes());
 
-        // TODO: if the log contains entries, call the maintenancelogentriesdao.saveorupdate
+        // If the log contains entries, call the maintenancelogentriesdao.saveorupdate
         if (log.getMaintenanceEntries() != null) {
             MaintenanceEntriesDao entryDao = new MaintenanceEntriesDao(dbHelper);
             for (MaintenanceEntriesDB entry : log.getMaintenanceEntries()) {

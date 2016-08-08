@@ -16,6 +16,8 @@ public class TrailJournalsDB {
     private Double minSpeed;
     private Double avgSpeed;
     private ConditionTypesDB conditionType;
+    private TrailsDB trail;
+    private SledsDB sled;
 
     public Long getId() {
         return id;
@@ -87,5 +89,21 @@ public class TrailJournalsDB {
 
     public void setConditionType(ConditionTypesDB conditionType) {
         this.conditionType = conditionType;
+    }
+
+    public TrailsDB getTrail() {
+        return trail;
+    }
+
+    public void setTrail(TrailsDB trail) {
+        this.trail = trail;
+    }
+
+    public SledsDB getSled() {
+        return sled;
+    }
+
+    public void setSled(SledsDB sled) {
+        this.sled = sled;
     }
 }
