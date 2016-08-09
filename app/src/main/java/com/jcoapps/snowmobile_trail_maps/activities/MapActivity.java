@@ -26,7 +26,6 @@ import com.esri.core.map.Graphic;
 import com.esri.core.symbol.SimpleLineSymbol;
 import com.esri.core.tasks.geocode.Locator;
 import com.jcoapps.snowmobile_trail_maps.R;
-import com.jcoapps.snowmobile_trail_maps.dao.TrailsDao;
 import com.jcoapps.snowmobile_trail_maps.models.TrailPathsDB;
 import com.jcoapps.snowmobile_trail_maps.models.TrailsDB;
 import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
@@ -34,6 +33,7 @@ import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -52,11 +52,14 @@ public class MapActivity extends AppCompatActivity {
     private List<TrailPathsDB> trailPaths;
     private TrailsDB trail;
     private SnowmobileTrailDatabaseHelper dbHelper;
+    private Location currentLocation;
+    private Location previousLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
         trailPoints = new ArrayList<Point>();
         trailPaths = new ArrayList<TrailPathsDB>();
         trail = new TrailsDB();
@@ -87,7 +90,7 @@ public class MapActivity extends AppCompatActivity {
 
         // Setup geocoding service
         //setupLocator();
-        // Setup service to display current device location
+        // Setup service to display currentLocation device location
         setupLocationListener();
     }
 
@@ -101,7 +104,7 @@ public class MapActivity extends AppCompatActivity {
         startActivity(saveTrail);
     }
 
-    // Center the map on the current GPS location
+    // Center the map on the currentLocation GPS location
     public void centerMap(View view) {
         locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
         zoom = true;
@@ -113,7 +116,7 @@ public class MapActivity extends AppCompatActivity {
             locationDisplayManager = mapView.getLocationDisplayManager();
             locationDisplayManager.setLocationListener(new LocationListener() {
 
-                // Zooms to the current location when the first GPS fix arrives
+                // Zooms to the currentLocation location when the first GPS fix arrives
                 @Override
                 public void onLocationChanged(Location loc) {
                     if (zoom == true) {
@@ -122,19 +125,28 @@ public class MapActivity extends AppCompatActivity {
                         zoomToLocation(loc);
                     }
 
+                    previousLocation = currentLocation;
+                    currentLocation = loc;
+
+                    // Calculate speed based on time and distance between previous point and currentLocation point
+                    // Only calculate speed if current and previous location variables != null
+                    if (previousLocation != null && currentLocation != null) {
+                        Integer speed = calculateSpeed(previousLocation, currentLocation);
+                        TextView mapSpeed = (TextView) findViewById(R.id.mapSpeed);
+                        mapSpeed.setText(" Speed: " + speed.toString() + " MPH");
+                    }
+
                     Point currentCoord = getAsPoint(loc);
 
                     // Add the point to the drawable series of points
                     mapPoints.add(currentCoord);
 
+                    // Add the currentLocation coordinates to a list that can be added to the database
                     TrailPathsDB currentPath = new TrailPathsDB();
                     currentPath.setLatitude(new Float(currentCoord.getX()));
                     currentPath.setLongitude(new Float(currentCoord.getY()));
                     currentPath.setTrail(trail);
                     trailPaths.add(currentPath);
-
-                    // Add the point to the list of points that will be added to the database
-                    //trailPoints.add(currentCoord);
 
                     // Only draw when there are 2 points available
                     if (mapPoints.getPointCount() == 2) {
@@ -258,5 +270,16 @@ public class MapActivity extends AppCompatActivity {
         Point wgsPoint = new Point(loc.getLongitude(), loc.getLatitude());
         return  (Point) GeometryEngine.project(wgsPoint,
                 SpatialReference.create(4326), mapSr);
+    }
+
+    private int calculateSpeed(Location previous, Location current) {
+        float[] distance = new float[1];
+        Location.distanceBetween(previous.getLatitude(), previous.getLongitude(), current.getLatitude(), current.getLongitude(), distance);
+        float timeSeconds = (current.getTime() - previous.getTime()) / 1000;
+        float distanceMiles = distance[0] * new Float(0.000621371);
+        float speed = distanceMiles / timeSeconds;
+        // Convert mi/s to mi/hr
+        speed *= 3600;
+        return Math.round(speed);
     }
 }

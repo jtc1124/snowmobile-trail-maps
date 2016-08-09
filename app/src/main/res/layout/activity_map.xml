@@ -26,6 +26,11 @@
                 android:text="Save Trail" />
         </TableRow>
 
+        <TextView
+            android:id="@+id/mapSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Speed: " />
     </TableLayout>
 
     <TableLayout
