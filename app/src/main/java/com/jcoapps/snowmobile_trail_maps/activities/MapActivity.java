@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.esri.android.map.GraphicsLayer;
 import com.esri.android.map.LocationDisplayManager;
 import com.esri.android.map.MapView;
+import com.esri.android.map.event.OnPanListener;
 import com.esri.android.map.event.OnStatusChangedListener;
 import com.esri.core.geometry.Envelope;
 import com.esri.core.geometry.GeometryEngine;
@@ -40,7 +41,8 @@ public class MapActivity extends AppCompatActivity {
     private LocationDisplayManager locationDisplayManager;
     private Locator locator;
     private SpatialReference mapSr = null;
-    private final static double ZOOM_BY = 1;
+    private final static double ZOOM_BY = 0.25;
+    private boolean zoom = true;
     private MultiPoint mapPoints;
     private GraphicsLayer graphicsLayer;
     private Polyline multipath;
@@ -61,6 +63,7 @@ public class MapActivity extends AppCompatActivity {
         mapPoints = new MultiPoint();
         mapView = (MapView) findViewById(R.id.map);
         mapView.setOnStatusChangedListener(statusChangedListener);
+        mapView.setOnPanListener(panListener);
 
         dbHelper = new SnowmobileTrailDatabaseHelper(this);
         //mapView.setOnSingleTapListener(mapTapCallback);
@@ -98,21 +101,26 @@ public class MapActivity extends AppCompatActivity {
         startActivity(saveTrail);
     }
 
+    // Center the map on the current GPS location
+    public void centerMap(View view) {
+        locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
+        zoom = true;
+        zoomToLocation(locationDisplayManager.getLocation());
+    }
+
     private void setupLocationListener() {
         if ((mapView != null) && (mapView.isLoaded())) {
             locationDisplayManager = mapView.getLocationDisplayManager();
             locationDisplayManager.setLocationListener(new LocationListener() {
-                boolean locationChanged = false;
 
                 // Zooms to the current location when the first GPS fix arrives
                 @Override
                 public void onLocationChanged(Location loc) {
-                    locationChanged = true;
-                    zoomToLocation(loc);
-
-                    // After zooming, turn on the location pan mode to show the location
-                    // symbol. This will  disable as soon as you interact with the map.
-                    locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
+                    if (zoom == true) {
+                        // Only zoom on first GPS fix or if desired. if map is touched and moved, do not zoom on next fix
+                        locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
+                        zoomToLocation(loc);
+                    }
 
                     Point currentCoord = getAsPoint(loc);
 
@@ -220,6 +228,29 @@ public class MapActivity extends AppCompatActivity {
                     setupLocationListener();
                 }
             }
+        }
+    };
+
+    private final OnPanListener panListener = new OnPanListener() {
+        @Override
+        public void prePointerMove(float v, float v1, float v2, float v3) {
+
+        }
+
+        @Override
+        public void postPointerMove(float v, float v1, float v2, float v3) {
+            locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.OFF);
+            zoom = false;
+        }
+
+        @Override
+        public void prePointerUp(float v, float v1, float v2, float v3) {
+
+        }
+
+        @Override
+        public void postPointerUp(float v, float v1, float v2, float v3) {
+
         }
     };
 

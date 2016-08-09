@@ -111,7 +111,6 @@ public class SledsDao {
         return sledsList;
     }
 
-    // TODO update this method to work with log entries changes
     public boolean saveOrUpdateSled(SledsDB sled) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
