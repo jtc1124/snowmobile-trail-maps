@@ -1,12 +1,13 @@
 package com.jcoapps.snowmobile_trail_maps.models;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
 
 /**
  * Created by Jeremy on 7/30/2016.
  */
-public class SledsDB {
+public class SledsDB implements Serializable {
 
     private Long id;
     private Timestamp createdAt;

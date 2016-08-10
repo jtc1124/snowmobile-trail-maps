@@ -26,6 +26,7 @@ import com.esri.core.map.Graphic;
 import com.esri.core.symbol.SimpleLineSymbol;
 import com.esri.core.tasks.geocode.Locator;
 import com.jcoapps.snowmobile_trail_maps.R;
+import com.jcoapps.snowmobile_trail_maps.models.TrailJournalsDB;
 import com.jcoapps.snowmobile_trail_maps.models.TrailPathsDB;
 import com.jcoapps.snowmobile_trail_maps.models.TrailsDB;
 import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
@@ -54,6 +55,10 @@ public class MapActivity extends AppCompatActivity {
     private SnowmobileTrailDatabaseHelper dbHelper;
     private Location currentLocation;
     private Location previousLocation;
+    Integer maxSpeed;
+    Integer minSpeed;
+    Integer avgSpeed;
+    Double miles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,13 +100,24 @@ public class MapActivity extends AppCompatActivity {
     }
 
     public void saveTrail(View view) {
-        trail.setName("My Trail");
         trail.setPaths(trailPaths);
+
+        TrailJournalsDB journal = new TrailJournalsDB();
+        journal.setMinSpeed(minSpeed);
+        journal.setMaxSpeed(maxSpeed);
+        journal.setAvgSpeed((maxSpeed + minSpeed) / 2);
+        journal.setEntryName("my journal");
+        journal.setMiles(miles);
+
+        trail.addJournal(journal);
+
         Intent saveTrail = new Intent(MapActivity.this, SaveTrailActivity.class);
         Bundle b = new Bundle();
         b.putSerializable("TRAIL_DATA", trail);
         saveTrail.putExtras(b);
         startActivity(saveTrail);
+
+        // Save trail journal as well when saving a trail
     }
 
     // Center the map on the currentLocation GPS location
@@ -125,6 +141,7 @@ public class MapActivity extends AppCompatActivity {
                         zoomToLocation(loc);
                     }
 
+                    // Keep track of current and previous location to calculate speed
                     previousLocation = currentLocation;
                     currentLocation = loc;
 
@@ -132,6 +149,14 @@ public class MapActivity extends AppCompatActivity {
                     // Only calculate speed if current and previous location variables != null
                     if (previousLocation != null && currentLocation != null) {
                         Integer speed = calculateSpeed(previousLocation, currentLocation);
+
+                        if (minSpeed == null || speed < minSpeed) {
+                            minSpeed = speed;
+                        }
+                        if (maxSpeed == null || speed > maxSpeed) {
+                            maxSpeed = speed;
+                        }
+
                         TextView mapSpeed = (TextView) findViewById(R.id.mapSpeed);
                         mapSpeed.setText(" Speed: " + speed.toString() + " MPH");
                     }
@@ -277,6 +302,13 @@ public class MapActivity extends AppCompatActivity {
         Location.distanceBetween(previous.getLatitude(), previous.getLongitude(), current.getLatitude(), current.getLongitude(), distance);
         float timeSeconds = (current.getTime() - previous.getTime()) / 1000;
         float distanceMiles = distance[0] * new Float(0.000621371);
+        if (miles == null) {
+            miles = new Double(distanceMiles);
+        }
+        else {
+            miles += distanceMiles;
+        }
+
         float speed = distanceMiles / timeSeconds;
         // Convert mi/s to mi/hr
         speed *= 3600;

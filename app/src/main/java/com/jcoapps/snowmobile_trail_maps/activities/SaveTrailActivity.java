@@ -11,7 +11,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jcoapps.snowmobile_trail_maps.R;
+import com.jcoapps.snowmobile_trail_maps.dao.TrailJournalsDao;
 import com.jcoapps.snowmobile_trail_maps.dao.TrailsDao;
+import com.jcoapps.snowmobile_trail_maps.models.TrailJournalsDB;
 import com.jcoapps.snowmobile_trail_maps.models.TrailsDB;
 import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
 
@@ -49,6 +51,10 @@ public class SaveTrailActivity extends AppCompatActivity {
         TrailsDao trailsDao = new TrailsDao(dbHelper);
         trail.setName(nameField.getText().toString());
         if (trailsDao.saveOrUpdateTrail(trail)) {
+            TrailJournalsDB journal = trail.getJournals().get(0);
+            journal.setTrail(trail);
+            TrailJournalsDao journalsDao = new TrailJournalsDao(dbHelper);
+            journalsDao.saveOrUpdateTrailJournal(journal);
             // Open TrailsActivity to display the trails list on successful save
             Intent trails = new Intent(SaveTrailActivity.this, TrailsActivity.class);
             Bundle b = new Bundle();

@@ -5,7 +5,9 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by Jeremy on 8/2/2016.
@@ -17,7 +19,7 @@ public class TrailsDB implements Serializable {
     private Timestamp updatedAt;
     private String name;
     private Collection<TrailPathsDB> paths;
-    private Collection<TrailJournalsDB> journals;
+    private List<TrailJournalsDB> journals;
 
     public Long getId() {
         return id;
@@ -59,11 +61,18 @@ public class TrailsDB implements Serializable {
         this.paths = paths;
     }
 
-    public Collection<TrailJournalsDB> getJournals() {
+    public List<TrailJournalsDB> getJournals() {
         return journals;
     }
 
-    public void setJournals(Collection<TrailJournalsDB> journals) {
+    public void setJournals(List<TrailJournalsDB> journals) {
         this.journals = journals;
+    }
+
+    public void addJournal(TrailJournalsDB journal) {
+        if (journals == null) {
+            journals = new ArrayList<TrailJournalsDB>();
+        }
+        journals.add(journal);
     }
 }

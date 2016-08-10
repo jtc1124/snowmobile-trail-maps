@@ -40,9 +40,9 @@ public class TrailJournalsDao {
                 journal.setUpdatedAt(new Timestamp(Long.parseLong(journalsCursor.getString(2))));
                 journal.setEntryName(journalsCursor.getString(3));
                 journal.setMiles(journalsCursor.getDouble(4));
-                journal.setMaxSpeed(journalsCursor.getDouble(5));
-                journal.setMinSpeed(journalsCursor.getDouble(6));
-                journal.setAvgSpeed(journalsCursor.getDouble(7));
+                journal.setMaxSpeed(journalsCursor.getInt(5));
+                journal.setMinSpeed(journalsCursor.getInt(6));
+                journal.setAvgSpeed(journalsCursor.getInt(7));
 
                 /*
                 // TODO call TrailsDao

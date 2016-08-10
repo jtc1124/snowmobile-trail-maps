@@ -116,9 +116,9 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.put(TRAIL_JOURNAL_ENTRY_NAME, "TEXT NOT NULL DEFAULT 'unnamed entry'");
         columns.put(TRAIL_JOURNAL_MILES, "DOUBLE");
-        columns.put(TRAIL_JOURNAL_MAX_SPEED, "DOUBLE");
-        columns.put(TRAIL_JOURNAL_MIN_SPEED, "DOUBLE");
-        columns.put(TRAIL_JOURNAL_AVG_SPEED, "DOUBLE");
+        columns.put(TRAIL_JOURNAL_MAX_SPEED, "INT");
+        columns.put(TRAIL_JOURNAL_MIN_SPEED, "INT");
+        columns.put(TRAIL_JOURNAL_AVG_SPEED, "INT");
         columns.put(TRAIL_JOURNAL_TRAIL_ID, "INT");
         columns.put(TRAIL_JOURNAL_SLED_ID, "INT");
         columns.put(TRAIL_JOURNAL_CONDITION_ID, "INT");
