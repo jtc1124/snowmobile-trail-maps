@@ -170,8 +170,8 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.clear();
 
-        columns.put(TRAIL_PATH_LATITUDE, "FLOAT NOT NULL");
-        columns.put(TRAIL_PATH_LONGITUDE, "FLOAT NOT NULL");
+        columns.put(TRAIL_PATH_LATITUDE, "DOUBLE NOT NULL");
+        columns.put(TRAIL_PATH_LONGITUDE, "DOUBLE NOT NULL");
         columns.put(TRAIL_PATH_TRAIL_ID, "INT NOT NULL");
         createTable(db, TRAIL_PATHS_TABLE, columns);
 

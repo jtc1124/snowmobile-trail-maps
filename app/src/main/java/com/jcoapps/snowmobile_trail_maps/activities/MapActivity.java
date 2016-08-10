@@ -85,8 +85,7 @@ public class MapActivity extends AppCompatActivity {
             mapPoints.setEmpty();
 
             for (TrailPathsDB path : paths) {
-                // TODO change trailpathsDb lat and lon to double
-                Point coord = new Point(new Double(path.getLatitude()), new Double(path.getLongitude()));
+                Point coord = new Point(path.getLatitude(), path.getLongitude());
                 mapPoints.add(coord);
             }
 
@@ -168,8 +167,8 @@ public class MapActivity extends AppCompatActivity {
 
                     // Add the currentLocation coordinates to a list that can be added to the database
                     TrailPathsDB currentPath = new TrailPathsDB();
-                    currentPath.setLatitude(new Float(currentCoord.getX()));
-                    currentPath.setLongitude(new Float(currentCoord.getY()));
+                    currentPath.setLatitude(currentCoord.getX());
+                    currentPath.setLongitude(currentCoord.getY());
                     currentPath.setTrail(trail);
                     trailPaths.add(currentPath);
 

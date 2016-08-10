@@ -52,8 +52,8 @@ public class TrailsDao {
                         path.setId(pathsCursor.getLong(0));
                         path.setCreatedAt(new Timestamp(Long.parseLong(pathsCursor.getString(1))));
                         path.setUpdatedAt(new Timestamp(Long.parseLong(pathsCursor.getString(2))));
-                        path.setLatitude(pathsCursor.getFloat(3));
-                        path.setLongitude(pathsCursor.getFloat(4));
+                        path.setLatitude(pathsCursor.getDouble(3));
+                        path.setLongitude(pathsCursor.getDouble(4));
                         path.setTrail(trail);
                         paths.add(path);
                     } while (pathsCursor.moveToNext());
@@ -94,8 +94,8 @@ public class TrailsDao {
                 path.setId(pathsCursor.getLong(0));
                 path.setCreatedAt(new Timestamp(Long.parseLong(pathsCursor.getString(1))));
                 path.setUpdatedAt(new Timestamp(Long.parseLong(pathsCursor.getString(2))));
-                path.setLatitude(pathsCursor.getFloat(3));
-                path.setLongitude(pathsCursor.getFloat(4));
+                path.setLatitude(pathsCursor.getDouble(3));
+                path.setLongitude(pathsCursor.getDouble(4));
                 path.setTrail(trail);
                 trailPaths.add(path);
             } while(pathsCursor.moveToNext());
