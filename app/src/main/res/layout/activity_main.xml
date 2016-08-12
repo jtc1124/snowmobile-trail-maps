@@ -1,79 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent" android:layout_height="fill_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="2"
+        android:text="Graphs and pictures and shit here in this big area">
+
+
+    </TextView>
+
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="20dip"
-            android:text="Condition Types"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+        <Button
+            android:id="@+id/mapButton"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="viewMap"
+            android:text="View Map"
+            android:drawableTop="@drawable/rider"
+            style="?android:attr/textAppearanceButton"/>
 
-        <TableLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dip"
-            android:stretchColumns="*" >
+        <Button
+            android:id="@+id/dbButton"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="viewDB"
+            android:text="View DB"
+            android:drawableTop="@drawable/rider"/>
 
-            <TableRow>
-                <TextView
-                    android:id="@+id/conditionTypes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center" />
-            </TableRow>
-        </TableLayout>
-
-        <TableLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dip"
-            android:stretchColumns="*" >
-
-            <TableRow>
-                <Button
-                    android:id="@+id/mapButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="viewMap"
-                    android:text="View Map" />
-            </TableRow>
-
-            <TableRow>
-                <Button
-                    android:id="@+id/dbButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="viewDB"
-                    android:text="View DB" />
-            </TableRow>
-
-            <TableRow>
-                <Button
-                    android:id="@+id/sledsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="sleds"
-                    android:text="Sleds" />
-            </TableRow>
-
-            <TableRow>
-                <Button
-                    android:id="@+id/trailsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="trails"
-                    android:text="Trails" />
-            </TableRow>
-        </TableLayout>
-
+        <Button
+            android:id="@+id/friendsButton"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="viewFriends"
+            android:text="Friends"
+            android:drawableTop="@drawable/rider"/>
     </LinearLayout>
 
-</ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+         <Button
+            android:id="@+id/sledsButton"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="sleds"
+            android:text="Sleds"
+            android:drawableTop="@drawable/rider"/>
+
+        <Button
+            android:id="@+id/trailsButton"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="trails"
+            android:text="Trails"
+            android:drawableTop="@drawable/rider" />
+
+        <Button
+            android:id="@+id/settingsButton"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="viewSettings"
+            android:text="Settings"
+            android:drawableTop="@drawable/rider"/>
+    </LinearLayout>
+
+</LinearLayout>

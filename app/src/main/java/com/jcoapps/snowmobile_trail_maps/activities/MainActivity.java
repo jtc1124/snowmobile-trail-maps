@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Get or create SQLite database
         dbHelper = new SnowmobileTrailDatabaseHelper(this);
-        displayConditionTypes();
     }
 
     public void viewMap(View view) {
@@ -58,12 +57,5 @@ public class MainActivity extends AppCompatActivity {
     public void trails(View view) {
         Intent trails = new Intent(MainActivity.this, TrailsActivity.class);
         startActivity(trails);
-    }
-
-    public void displayConditionTypes() {
-        ConditionTypesDao conditionTypesDao = new ConditionTypesDao(dbHelper);
-        List<ConditionTypesDB> conditionTypes = conditionTypesDao.getAllConditionTypes();
-        TextView tvConditionType = (TextView) findViewById(R.id.conditionTypes);
-        tvConditionType.setText(conditionTypes.get(0).getName());
     }
 }
