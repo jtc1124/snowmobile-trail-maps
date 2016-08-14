@@ -182,7 +182,7 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //TODO: For upgrade, drop tables and recreate database
+        // For upgrade, drop tables and recreate database
         onCreate(db);
     }
 
