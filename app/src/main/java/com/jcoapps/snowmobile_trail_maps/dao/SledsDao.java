@@ -25,7 +25,6 @@ public class SledsDao {
         this.dbHelper = dbHelper;
     }
 
-    // TODO: refactor this mess
     public List<SledsDB> getAllSleds() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         List<SledsDB> sledsList = new ArrayList<SledsDB>();
@@ -36,7 +35,6 @@ public class SledsDao {
         if (sledsCursor.moveToFirst()) {
             do {
                 SledsDB sled = new SledsDB();
-                MaintenanceLogsDB maintenanceLog = new MaintenanceLogsDB();
 
                 // get sled data
                 sled.setId(sledsCursor.getLong(0));
@@ -49,56 +47,8 @@ public class SledsDao {
                 sled.setNotes(sledsCursor.getString(7));
 
                 // get associated maintenance log data
-                maintenanceLog.setId(sledsCursor.getLong(8));
-                String selectMaintenanceLogByIdQuery = "SELECT id, created_at, updated_at, name, notes FROM " + dbHelper.MAINTENANCE_LOGS_TABLE + " WHERE id = " + maintenanceLog.getId() + ";";
-                Cursor maintenanceCursor = db.rawQuery(selectMaintenanceLogByIdQuery, null);
-
-                if (maintenanceCursor.moveToFirst()) {
-                    List<MaintenanceEntriesDB> entryList = new ArrayList<MaintenanceEntriesDB>();
-                    maintenanceLog.setCreatedAt(new Timestamp(maintenanceCursor.getLong(1)));
-                    maintenanceLog.setUpdatedAt(new Timestamp(maintenanceCursor.getLong(2)));
-                    maintenanceLog.setName(maintenanceCursor.getString(3));
-                    maintenanceLog.setNotes(maintenanceCursor.getString(4));
-
-                    String selectEntriesByLogIdQuery = "SELECT id, created_at, updated_at, notes, maintenance_type_id, maintenance_log_id FROM " + dbHelper.MAINTENANCE_ENTRIES_TABLE + " WHERE maintenance_log_id = " + maintenanceLog.getId() + ";";
-                    Cursor entriesCursor = db.rawQuery(selectEntriesByLogIdQuery, null);
-
-                    // get associated log entries
-                    if (entriesCursor.moveToFirst()) {
-                        do {
-                            MaintenanceEntriesDB entry = new MaintenanceEntriesDB();
-                            MaintenanceTypesDB maintenanceType = new MaintenanceTypesDB();
-
-                            entry.setId(entriesCursor.getLong(0));
-                            entry.setCreatedAt(new Timestamp(entriesCursor.getLong(1)));
-                            entry.setUpdatedAt(new Timestamp(entriesCursor.getLong(2)));
-                            entry.setNotes(entriesCursor.getString(3));
-
-                            maintenanceType.setId(entriesCursor.getLong(4));
-
-                            // set the maintenance log this entry is associated with
-                            entry.setLog(maintenanceLog);
-
-                            // get associated maintenance type
-                            String selectMaintenanceTypeByIdQuery = "SELECT id, created_at, updated_at, name FROM " + dbHelper.MAINTENANCE_TYPES_TABLE + " WHERE id = " + maintenanceType.getId() + ";";
-                            Cursor typeCursor = db.rawQuery(selectMaintenanceTypeByIdQuery, null);
-
-                            if (typeCursor.moveToFirst()) {
-                                maintenanceType.setCreatedAt(new Timestamp(typeCursor.getLong(1)));
-                                maintenanceType.setUpdatedAt(new Timestamp(typeCursor.getLong(2)));
-                                maintenanceType.setName(typeCursor.getString(3));
-                            }
-
-                            // set type in entry
-                            entry.setType(maintenanceType);
-                            // add entry to entry list
-                            entryList.add(entry);
-                        } while (entriesCursor.moveToNext());
-                    }
-
-                    // Set entry data in log
-                    maintenanceLog.setMaintenanceEntries(entryList);
-                }
+                MaintenanceLogsDao maintenanceLogsDao = new MaintenanceLogsDao(dbHelper);
+                MaintenanceLogsDB maintenanceLog = maintenanceLogsDao.getMaintenanceLogById(sledsCursor.getLong(8));
 
                 // set maintenance log in sled
                 sled.setMaintenanceLog(maintenanceLog);
@@ -107,7 +57,6 @@ public class SledsDao {
         }
 
         db.close();
-
         return sledsList;
     }
 

@@ -70,6 +70,7 @@ public class MapActivity extends AppCompatActivity {
         trail = new TrailsDB();
         mapPoints = new MultiPoint();
         mapView = (MapView) findViewById(R.id.map);
+        mapView.setAllowRotationByPinch(true);
         mapView.setOnStatusChangedListener(statusChangedListener);
         mapView.setOnPanListener(panListener);
 
@@ -121,7 +122,6 @@ public class MapActivity extends AppCompatActivity {
 
     // Center the map on the currentLocation GPS location
     public void centerMap(View view) {
-        locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
         zoom = true;
         zoomToLocation(locationDisplayManager.getLocation());
     }
@@ -136,7 +136,6 @@ public class MapActivity extends AppCompatActivity {
                 public void onLocationChanged(Location loc) {
                     if (zoom == true) {
                         // Only zoom on first GPS fix or if desired. if map is touched and moved, do not zoom on next fix
-                        locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
                         zoomToLocation(loc);
                     }
 
@@ -146,6 +145,9 @@ public class MapActivity extends AppCompatActivity {
 
                     // Calculate speed based on time and distance between previous point and currentLocation point
                     // Only calculate speed if current and previous location variables != null
+                    // TODO: look into Kalman Filter to smooth GPS data
+                    // TODO: filter out bad GPS fixes(ones that are inconsistent with the majority) and
+                    // TODO: make sure garbage collection doesn't delete saved coordinates before they are committed to the DB
                     if (previousLocation != null && currentLocation != null) {
                         Integer speed = calculateSpeed(previousLocation, currentLocation);
 
@@ -252,6 +254,13 @@ public class MapActivity extends AppCompatActivity {
                 Unit.create(LinearUnit.Code.MILE_US), mapUnit);
         Envelope zoomExtent = new Envelope(mapPoint, zoomFactor, zoomFactor);
         mapView.setExtent(zoomExtent);
+        setNavigationMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
+    }
+
+    // Set map navigation mode
+    private void setNavigationMode(LocationDisplayManager.AutoPanMode panMode) {
+        locationDisplayManager.setNavigationPointHeightFactor(0.25f);
+        locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
     }
 
     private final OnStatusChangedListener statusChangedListener = new OnStatusChangedListener() {
