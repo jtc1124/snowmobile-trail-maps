@@ -21,11 +21,58 @@ public class TrailsDao {
 
     public TrailsDao(SnowmobileTrailDatabaseHelper dbHelper) { this.dbHelper = dbHelper; }
 
+    public List<TrailsDB> getAllTrails() {
+        List<TrailsDB> trails = new ArrayList<TrailsDB>();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String selectQuery = "SELECT id, created_at, updated_at, name FROM " + dbHelper.TRAILS_TABLE + ";";
+
+        Cursor trailsCursor = db.rawQuery(selectQuery, null);
+
+        if (trailsCursor.moveToFirst()) {
+            do {
+                // For each trail, get all TrailPathsDB entries associated
+                TrailsDB trail = new TrailsDB();
+
+                trail.setId(trailsCursor.getLong(0));
+                trail.setCreatedAt(new Timestamp(Long.parseLong(trailsCursor.getString(1))));
+                trail.setUpdatedAt(new Timestamp(Long.parseLong(trailsCursor.getString(2))));
+                trail.setName(trailsCursor.getString(3));
+
+                // TODO maybe we don't want to pull the trail paths at first since they can be very large,
+                // maybe only get these when we want to inspect the trail details or draw it on the map
+                List<TrailPathsDB> paths = new ArrayList<TrailPathsDB>();
+                String selectPathsQuery = "SELECT id, created_at, updated_at, latitude, longitude, trail_id FROM " + dbHelper.TRAIL_PATHS_TABLE + " WHERE trail_id = " + trail.getId() + ";";
+
+                Cursor pathsCursor = db.rawQuery(selectPathsQuery, null);
+
+                if (pathsCursor.moveToFirst()) {
+                    do {
+                        TrailPathsDB path = new TrailPathsDB();
+
+                        path.setId(pathsCursor.getLong(0));
+                        path.setCreatedAt(new Timestamp(Long.parseLong(pathsCursor.getString(1))));
+                        path.setUpdatedAt(new Timestamp(Long.parseLong(pathsCursor.getString(2))));
+                        path.setLatitude(pathsCursor.getDouble(3));
+                        path.setLongitude(pathsCursor.getDouble(4));
+                        path.setTrail(trail);
+                        paths.add(path);
+                    } while (pathsCursor.moveToNext());
+                }
+
+                trail.setPaths(paths);
+                trails.add(trail);
+            } while (trailsCursor.moveToNext());
+        }
+
+        db.close();
+        return trails;
+    }
+
     public TrailsDB getTrailByName(String name) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         TrailsDB trail = new TrailsDB();
 
-        String selectQuery = "SELECT id, created_at, updated_at, name  FROM " + dbHelper.TRAILS_TABLE + ";";
+        String selectQuery = "SELECT id, created_at, updated_at, name  FROM " + dbHelper.TRAILS_TABLE + " WHERE name = '" + name + "';";
 
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -47,8 +94,8 @@ public class TrailsDao {
                 path.setId(pathsCursor.getLong(0));
                 path.setCreatedAt(new Timestamp(Long.parseLong(pathsCursor.getString(1))));
                 path.setUpdatedAt(new Timestamp(Long.parseLong(pathsCursor.getString(2))));
-                path.setLatitude(pathsCursor.getFloat(3));
-                path.setLongitude(pathsCursor.getFloat(4));
+                path.setLatitude(pathsCursor.getDouble(3));
+                path.setLongitude(pathsCursor.getDouble(4));
                 path.setTrail(trail);
                 trailPaths.add(path);
             } while(pathsCursor.moveToNext());

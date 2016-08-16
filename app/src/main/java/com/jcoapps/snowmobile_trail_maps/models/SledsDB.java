@@ -1,11 +1,13 @@
 package com.jcoapps.snowmobile_trail_maps.models;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 /**
  * Created by Jeremy on 7/30/2016.
  */
-public class SledsDB {
+public class SledsDB implements Serializable {
 
     private Long id;
     private Timestamp createdAt;
@@ -16,6 +18,7 @@ public class SledsDB {
     private Double mileage;
     private String notes;
     private MaintenanceLogsDB maintenanceLog;
+    private Collection<TrailJournalsDB> journals;
 
     public Long getId() {
         return id;
@@ -87,5 +90,13 @@ public class SledsDB {
 
     public void setMaintenanceLog(MaintenanceLogsDB maintenanceLog) {
         this.maintenanceLog = maintenanceLog;
+    }
+
+    public Collection<TrailJournalsDB> getJournals() {
+        return journals;
+    }
+
+    public void setJournals(Collection<TrailJournalsDB> journals) {
+        this.journals = journals;
     }
 }

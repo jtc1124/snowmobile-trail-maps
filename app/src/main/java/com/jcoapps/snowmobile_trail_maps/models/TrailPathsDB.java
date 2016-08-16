@@ -1,17 +1,18 @@
 package com.jcoapps.snowmobile_trail_maps.models;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
  * Created by Jeremy on 8/2/2016.
  */
-public class TrailPathsDB {
+public class TrailPathsDB implements Serializable {
 
     private Long id;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-    private Float latitude;
-    private Float longitude;
+    private Double latitude;
+    private Double longitude;
     private TrailsDB trail;
 
     public Long getId() {
@@ -38,19 +39,19 @@ public class TrailPathsDB {
         this.updatedAt = updatedAt;
     }
 
-    public Float getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Float latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public Float getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Float longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 

@@ -1,21 +1,24 @@
 package com.jcoapps.snowmobile_trail_maps.models;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
  * Created by Jeremy on 7/30/2016.
  */
-public class TrailJournalsDB {
+public class TrailJournalsDB implements Serializable {
 
     private Long id;
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private String entryName;
     private Double miles;
-    private Double maxSpeed;
-    private Double minSpeed;
-    private Double avgSpeed;
+    private Integer maxSpeed;
+    private Integer minSpeed;
+    private Integer avgSpeed;
     private ConditionTypesDB conditionType;
+    private TrailsDB trail;
+    private SledsDB sled;
 
     public Long getId() {
         return id;
@@ -57,27 +60,27 @@ public class TrailJournalsDB {
         this.miles = miles;
     }
 
-    public Double getMaxSpeed() {
+    public Integer getMaxSpeed() {
         return maxSpeed;
     }
 
-    public void setMaxSpeed(Double maxSpeed) {
+    public void setMaxSpeed(Integer maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
 
-    public Double getMinSpeed() {
+    public Integer getMinSpeed() {
         return minSpeed;
     }
 
-    public void setMinSpeed(Double minSpeed) {
+    public void setMinSpeed(Integer minSpeed) {
         this.minSpeed = minSpeed;
     }
 
-    public Double getAvgSpeed() {
+    public Integer getAvgSpeed() {
         return avgSpeed;
     }
 
-    public void setAvgSpeed(Double avgSpeed) {
+    public void setAvgSpeed(Integer avgSpeed) {
         this.avgSpeed = avgSpeed;
     }
 
@@ -87,5 +90,21 @@ public class TrailJournalsDB {
 
     public void setConditionType(ConditionTypesDB conditionType) {
         this.conditionType = conditionType;
+    }
+
+    public TrailsDB getTrail() {
+        return trail;
+    }
+
+    public void setTrail(TrailsDB trail) {
+        this.trail = trail;
+    }
+
+    public SledsDB getSled() {
+        return sled;
+    }
+
+    public void setSled(SledsDB sled) {
+        this.sled = sled;
     }
 }

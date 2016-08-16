@@ -1,5 +1,6 @@
 package com.jcoapps.snowmobile_trail_maps.activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import com.esri.android.map.GraphicsLayer;
 import com.esri.android.map.LocationDisplayManager;
 import com.esri.android.map.MapView;
+import com.esri.android.map.event.OnPanListener;
 import com.esri.android.map.event.OnStatusChangedListener;
 import com.esri.core.geometry.Envelope;
 import com.esri.core.geometry.GeometryEngine;
@@ -24,7 +26,7 @@ import com.esri.core.map.Graphic;
 import com.esri.core.symbol.SimpleLineSymbol;
 import com.esri.core.tasks.geocode.Locator;
 import com.jcoapps.snowmobile_trail_maps.R;
-import com.jcoapps.snowmobile_trail_maps.dao.TrailsDao;
+import com.jcoapps.snowmobile_trail_maps.models.TrailJournalsDB;
 import com.jcoapps.snowmobile_trail_maps.models.TrailPathsDB;
 import com.jcoapps.snowmobile_trail_maps.models.TrailsDB;
 import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
@@ -32,6 +34,7 @@ import com.jcoapps.snowmobile_trail_maps.schema.SnowmobileTrailDatabaseHelper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -39,7 +42,8 @@ public class MapActivity extends AppCompatActivity {
     private LocationDisplayManager locationDisplayManager;
     private Locator locator;
     private SpatialReference mapSr = null;
-    private final static double ZOOM_BY = 1;
+    private final static double ZOOM_BY = 0.25;
+    private boolean zoom = true;
     private MultiPoint mapPoints;
     private GraphicsLayer graphicsLayer;
     private Polyline multipath;
@@ -49,85 +53,126 @@ public class MapActivity extends AppCompatActivity {
     private List<TrailPathsDB> trailPaths;
     private TrailsDB trail;
     private SnowmobileTrailDatabaseHelper dbHelper;
+    private Location currentLocation;
+    private Location previousLocation;
+    Integer maxSpeed;
+    Integer minSpeed;
+    Integer avgSpeed;
+    Double miles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
         trailPoints = new ArrayList<Point>();
         trailPaths = new ArrayList<TrailPathsDB>();
         trail = new TrailsDB();
         mapPoints = new MultiPoint();
         mapView = (MapView) findViewById(R.id.map);
+        mapView.setAllowRotationByPinch(true);
         mapView.setOnStatusChangedListener(statusChangedListener);
+        mapView.setOnPanListener(panListener);
 
         dbHelper = new SnowmobileTrailDatabaseHelper(this);
         //mapView.setOnSingleTapListener(mapTapCallback);
 
+        // Check if a trail to display was passed to this activity
+        Bundle b = this.getIntent().getExtras();
+        if (b != null) {
+            trail = (TrailsDB) b.getSerializable("SELECTED_TRAIL");
+
+            Collection<TrailPathsDB> paths = trail.getPaths();
+            mapPoints.setEmpty();
+
+            for (TrailPathsDB path : paths) {
+                Point coord = new Point(path.getLatitude(), path.getLongitude());
+                mapPoints.add(coord);
+            }
+
+            drawFullTrailPath(mapPoints);
+        }
+
         // Setup geocoding service
         //setupLocator();
-        // Setup service to display current device location
+        // Setup service to display currentLocation device location
         setupLocationListener();
     }
 
     public void saveTrail(View view) {
-        // Reset current path once saved?
-        TextView trailAddedText = (TextView)findViewById(R.id.trailAddedText);
-        TrailsDao trailsDao = new TrailsDao(dbHelper);
-        trail.setName("My Trail");
         trail.setPaths(trailPaths);
-        if (trailsDao.saveOrUpdateTrail(trail)) {
-            trailAddedText.setText("Trail successfully created.");
-        }
-        else {
-            trailAddedText.setText("Something went wrong. Trail was not created.");
-        }
+
+        TrailJournalsDB journal = new TrailJournalsDB();
+        journal.setMinSpeed(minSpeed);
+        journal.setMaxSpeed(maxSpeed);
+        journal.setAvgSpeed((maxSpeed + minSpeed) / 2);
+        journal.setEntryName("my journal");
+        journal.setMiles(miles);
+
+        trail.addJournal(journal);
+
+        Intent saveTrail = new Intent(MapActivity.this, SaveTrailActivity.class);
+        Bundle b = new Bundle();
+        b.putSerializable("TRAIL_DATA", trail);
+        saveTrail.putExtras(b);
+        startActivity(saveTrail);
+
+        // Save trail journal as well when saving a trail
     }
 
-    public void showTrail(View view) {
-        TrailsDao trailsDao = new TrailsDao(dbHelper);
-        TrailsDB trail = trailsDao.getTrailByName("My Trail");
-        Collection<TrailPathsDB> paths = trail.getPaths();
-        mapPoints.setEmpty();
-
-        for (TrailPathsDB path : paths) {
-            // TODO change trailpathsDb lat and lon to double
-            Point coord = new Point(new Double(path.getLatitude()), new Double(path.getLongitude()));
-            mapPoints.add(coord);
-        }
-
-        drawFullTrailPath(mapPoints);
+    // Center the map on the currentLocation GPS location
+    public void centerMap(View view) {
+        zoom = true;
+        zoomToLocation(locationDisplayManager.getLocation());
     }
 
     private void setupLocationListener() {
         if ((mapView != null) && (mapView.isLoaded())) {
             locationDisplayManager = mapView.getLocationDisplayManager();
             locationDisplayManager.setLocationListener(new LocationListener() {
-                boolean locationChanged = false;
 
-                // Zooms to the current location when the first GPS fix arrives
+                // Zooms to the currentLocation location when the first GPS fix arrives
                 @Override
                 public void onLocationChanged(Location loc) {
-                    locationChanged = true;
-                    zoomToLocation(loc);
+                    if (zoom == true) {
+                        // Only zoom on first GPS fix or if desired. if map is touched and moved, do not zoom on next fix
+                        zoomToLocation(loc);
+                    }
 
-                    // After zooming, turn on the location pan mode to show the location
-                    // symbol. This will  disable as soon as you interact with the map.
-                    locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
+                    // Keep track of current and previous location to calculate speed
+                    previousLocation = currentLocation;
+                    currentLocation = loc;
+
+                    // Calculate speed based on time and distance between previous point and currentLocation point
+                    // Only calculate speed if current and previous location variables != null
+                    // TODO: look into Kalman Filter to smooth GPS data
+                    // TODO: filter out bad GPS fixes(ones that are inconsistent with the majority) and
+                    // TODO: make sure garbage collection doesn't delete saved coordinates before they are committed to the DB
+                    if (previousLocation != null && currentLocation != null) {
+                        Integer speed = calculateSpeed(previousLocation, currentLocation);
+
+                        if (minSpeed == null || speed < minSpeed) {
+                            minSpeed = speed;
+                        }
+                        if (maxSpeed == null || speed > maxSpeed) {
+                            maxSpeed = speed;
+                        }
+
+                        TextView mapSpeed = (TextView) findViewById(R.id.mapSpeed);
+                        mapSpeed.setText(" Speed: " + speed.toString() + " MPH");
+                    }
 
                     Point currentCoord = getAsPoint(loc);
 
                     // Add the point to the drawable series of points
                     mapPoints.add(currentCoord);
 
+                    // Add the currentLocation coordinates to a list that can be added to the database
                     TrailPathsDB currentPath = new TrailPathsDB();
-                    currentPath.setLatitude(new Float(currentCoord.getX()));
-                    currentPath.setLongitude(new Float(currentCoord.getY()));
+                    currentPath.setLatitude(currentCoord.getX());
+                    currentPath.setLongitude(currentCoord.getY());
                     currentPath.setTrail(trail);
                     trailPaths.add(currentPath);
-
-                    // Add the point to the list of points that will be added to the database
-                    //trailPoints.add(currentCoord);
 
                     // Only draw when there are 2 points available
                     if (mapPoints.getPointCount() == 2) {
@@ -209,6 +254,13 @@ public class MapActivity extends AppCompatActivity {
                 Unit.create(LinearUnit.Code.MILE_US), mapUnit);
         Envelope zoomExtent = new Envelope(mapPoint, zoomFactor, zoomFactor);
         mapView.setExtent(zoomExtent);
+        setNavigationMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
+    }
+
+    // Set map navigation mode
+    private void setNavigationMode(LocationDisplayManager.AutoPanMode panMode) {
+        locationDisplayManager.setNavigationPointHeightFactor(0.25f);
+        locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.NAVIGATION);
     }
 
     private final OnStatusChangedListener statusChangedListener = new OnStatusChangedListener() {
@@ -224,14 +276,50 @@ public class MapActivity extends AppCompatActivity {
         }
     };
 
+    private final OnPanListener panListener = new OnPanListener() {
+        @Override
+        public void prePointerMove(float v, float v1, float v2, float v3) {
+
+        }
+
+        @Override
+        public void postPointerMove(float v, float v1, float v2, float v3) {
+            locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.OFF);
+            zoom = false;
+        }
+
+        @Override
+        public void prePointerUp(float v, float v1, float v2, float v3) {
+
+        }
+
+        @Override
+        public void postPointerUp(float v, float v1, float v2, float v3) {
+
+        }
+    };
+
     private Point getAsPoint(Location loc) {
         Point wgsPoint = new Point(loc.getLongitude(), loc.getLatitude());
         return  (Point) GeometryEngine.project(wgsPoint,
                 SpatialReference.create(4326), mapSr);
     }
-    private Point getAsPoint(TrailPathsDB path) {
-        Point wgsPoint = new Point(new Double(path.getLongitude()), new Double(path.getLatitude()));
-        return  (Point) GeometryEngine.project(wgsPoint,
-                SpatialReference.create(4326), mapSr);
+
+    private int calculateSpeed(Location previous, Location current) {
+        float[] distance = new float[1];
+        Location.distanceBetween(previous.getLatitude(), previous.getLongitude(), current.getLatitude(), current.getLongitude(), distance);
+        float timeSeconds = (current.getTime() - previous.getTime()) / 1000;
+        float distanceMiles = distance[0] * new Float(0.000621371);
+        if (miles == null) {
+            miles = new Double(distanceMiles);
+        }
+        else {
+            miles += distanceMiles;
+        }
+
+        float speed = distanceMiles / timeSeconds;
+        // Convert mi/s to mi/hr
+        speed *= 3600;
+        return Math.round(speed);
     }
 }

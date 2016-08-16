@@ -43,6 +43,8 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
     public static final String TRAIL_JOURNAL_MAX_SPEED = "max_speed"; // decimal
     public static final String TRAIL_JOURNAL_MIN_SPEED = "min_speed"; // decimal
     public static final String TRAIL_JOURNAL_AVG_SPEED = "avg_speed"; // decimal
+    public static final String TRAIL_JOURNAL_TRAIL_ID = "trail_id"; // int
+    public static final String TRAIL_JOURNAL_SLED_ID = "sled_id"; // int
     public static final String TRAIL_JOURNAL_CONDITION_ID = "condition_type_id"; // int
 
     // ConditionType table
@@ -52,7 +54,6 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
     // SledsDB table
     // Stores information about snowmobiles
-    // TODO: add year, make, model as fields instead of just name
     public static final String SLEDS_TABLE = "sleds";
     public static final String SLED_YEAR = "year"; // int
     public static final String SLED_MAKE = "make"; // string
@@ -87,7 +88,6 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
     // TrailsDB table
     // Stores custom trails
-    // TODO: connect trails table to trail_journals table (trail can have many journals)
     public static final String TRAILS_TABLE = "trails";
     public static final String TRAIL_NAME = "name";
 
@@ -116,9 +116,11 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.put(TRAIL_JOURNAL_ENTRY_NAME, "TEXT NOT NULL DEFAULT 'unnamed entry'");
         columns.put(TRAIL_JOURNAL_MILES, "DOUBLE");
-        columns.put(TRAIL_JOURNAL_MAX_SPEED, "DOUBLE");
-        columns.put(TRAIL_JOURNAL_MIN_SPEED, "DOUBLE");
-        columns.put(TRAIL_JOURNAL_AVG_SPEED, "DOUBLE");
+        columns.put(TRAIL_JOURNAL_MAX_SPEED, "INT");
+        columns.put(TRAIL_JOURNAL_MIN_SPEED, "INT");
+        columns.put(TRAIL_JOURNAL_AVG_SPEED, "INT");
+        columns.put(TRAIL_JOURNAL_TRAIL_ID, "INT");
+        columns.put(TRAIL_JOURNAL_SLED_ID, "INT");
         columns.put(TRAIL_JOURNAL_CONDITION_ID, "INT");
         createTable(db, TRAIL_JOURNALS_TABLE, columns);
 
@@ -168,8 +170,8 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
         columns.clear();
 
-        columns.put(TRAIL_PATH_LATITUDE, "FLOAT NOT NULL");
-        columns.put(TRAIL_PATH_LONGITUDE, "FLOAT NOT NULL");
+        columns.put(TRAIL_PATH_LATITUDE, "DOUBLE NOT NULL");
+        columns.put(TRAIL_PATH_LONGITUDE, "DOUBLE NOT NULL");
         columns.put(TRAIL_PATH_TRAIL_ID, "INT NOT NULL");
         createTable(db, TRAIL_PATHS_TABLE, columns);
 
@@ -180,7 +182,7 @@ public class SnowmobileTrailDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //TODO: For upgrade, drop tables and recreate database
+        // For upgrade, drop tables and recreate database
         onCreate(db);
     }
 
